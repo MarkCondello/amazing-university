@@ -26,15 +26,30 @@ get_header();
                 <p><a class="metabox__blog-home-link" href="<?= get_permalink($the_parent); ?>"><i class="fa fa-home" aria-hidden="true"></i> Back to <?= get_the_title($the_parent); ?></a> <span class="metabox__main"><?= the_title(); ?></span></p>
             </div>
 <?php endif; ?>  
-<!--
+
+        <?php 
+        $testArray = get_pages(array(
+            'child_of' => get_the_ID()
+        ));
+        if ($the_parent || $testArray ) { ?>
             <div class="page-links">
-                <h2 class="page-links__title"><a href="#">About Us</a></h2>
+                <h2 class="page-links__title"><a href="<?= get_permalink($the_parent); ?>"><?= get_the_title($the_parent); ?></a></h2>
                 <ul class="min-list">
-                <li class="current_page_item"><a href="#">Our History</a></li>
-                <li><a href="#">Our Goals</a></li>
+                    <?php 
+                    if($the_parent ) {
+                        $findChildrenOf = $the_parent;
+                    } else {
+                        $findChildrenOf = get_the_ID();
+                    }
+                    wp_list_pages(array(
+                        'title_li' => NULL,
+                        'child_of' => $findChildrenOf,
+                        'sort_column' => 'menu_order'
+                    )); ?>
                 </ul>
             </div>
--->
+        <?php } ?>
+
             <div class="generic-content">
                 <?= the_content(); ?>
             </div>
