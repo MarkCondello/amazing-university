@@ -18,7 +18,7 @@ get_header();
 
 
 <?php  
-//if the following return a value which is not 0 (false) it is a child page, requires the current page ID (get_the_ID())
+//if the following returns a value which is not 0 (false) it is a child page, requires the current page ID (get_the_ID())
     $the_parent = wp_get_post_parent_id(get_the_ID());
      if($the_parent): 
      ?>
@@ -36,9 +36,11 @@ get_header();
                 <h2 class="page-links__title"><a href="<?= get_permalink($the_parent); ?>"><?= get_the_title($the_parent); ?></a></h2>
                 <ul class="min-list">
                     <?php 
-                    if($the_parent ) {
+
+                    if( $the_parent ) {
                         $findChildrenOf = $the_parent;
                     } else {
+                        //if it is not a child page use the current page id to find its children
                         $findChildrenOf = get_the_ID();
                     }
                     wp_list_pages(array(
