@@ -1,10 +1,7 @@
 <?php get_header();  
 
 //home page template
-
-  while(have_posts( )) {
-    the_post();//keeps track of which post we are working with
-  ?>
+?>
     
   <div class="page-banner">
     <div class="page-banner__bg-image" style="background-image: url(<?= get_theme_file_uri('/images/library-hero.jpg'); ?>"></div>
@@ -50,17 +47,34 @@
       <div class="full-width-split__inner">
         <h2 class="headline headline--small-plus t-center">From Our Blogs</h2>
 
-        <div class="event-summary">
-          <a class="event-summary__date event-summary__date--beige t-center" href="#">
-            <span class="event-summary__month">Jan</span>
-            <span class="event-summary__day">20</span>  
-          </a>
-          <div class="event-summary__content">
-            <h5 class="event-summary__title headline headline--tiny"><a href="#">We Were Voted Best School</a></h5>
-            <p>For the 100th year in a row we are voted #1. <a href="#" class="nu gray">Read more</a></p>
-          </div>
-        </div>
-        <div class="event-summary">
+        <?php 
+        //codex WP_Query https://codex.wordpress.org/Class_Reference/WP_Query
+        $homepagePosts = new WP_Query(array(
+          'posts_per_page' => 2,
+           'category_name' => 'uncategorised',
+          'post_type' => 'post'
+
+        ));
+
+          while ($homepagePosts->have_posts()){
+            $homepagePosts->the_post()?>
+
+            <div class="event-summary">
+              <a class="event-summary__date event-summary__date--beige t-center" href="#">
+                <span class="event-summary__month"><?= the_time('M'); ?></span><!--Jan -->
+                <span class="event-summary__day"><?= the_time('d'); ?></span>  <!--20 -->
+              </a>
+              <div class="event-summary__content">
+                <h5 class="event-summary__title headline headline--tiny"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h5>
+                <p><?= wp_trim_words(get_the_content(), 18); ?><a href="<?php the_permalink(); ?>" class="nu gray">Read more</a></p>
+              </div>
+            </div>
+
+        <?php
+          }
+         wp_reset_postdata(); // reset the global variables for the loop 
+        ?>
+        <!-- <div class="event-summary">
           <a class="event-summary__date event-summary__date--beige t-center" href="#">
             <span class="event-summary__month">Feb</span>
             <span class="event-summary__day">04</span>  
@@ -69,9 +83,9 @@
             <h5 class="event-summary__title headline headline--tiny"><a href="#">Professors in the National Spotlight</a></h5>
             <p>Two of our professors have been in national news lately. <a href="#" class="nu gray">Read more</a></p>
           </div>
-        </div>
+        </div>  -->
         
-        <p class="t-center no-margin"><a href="#" class="btn btn--yellow">View All Blog Posts</a></p>
+        <p class="t-center no-margin"><a href="<?= site_url('/blog'); ?>" class="btn btn--yellow">View All Blog Posts</a></p>
       </div>
     </div>
   </div>
@@ -105,6 +119,6 @@
     </div>
   </div>
 </div>
- <?php }
+ <?php  
   get_footer();  
 ?>
