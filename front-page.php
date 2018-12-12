@@ -28,20 +28,31 @@
               $homePageEvents->the_post(); ?>
  
               <div class="event-summary">
-                <a class="event-summary__date t-center" href="#">
-                  <span class="event-summary__month">Mar</span>
-                  <span class="event-summary__day">25</span>  
+                <a class="event-summary__date t-center" href="<?php the_permalink(); ?>">
+                  <?php 
+                  // must be Year Month Day YYYYMMDD in ACF return format to grab options using the DateTime PHP object
+                    $eventDate = new DateTime(get_field('event_date'));                    
+                  ?>
+                  <span class="event-summary__month"><?php echo $eventDate->format('M') ; ?></span>
+                  <span class="event-summary__day"><?php echo $eventDate->format('d') ; ?></span>  
                 </a>
                 <div class="event-summary__content">
                   <h5 class="event-summary__title headline headline--tiny"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h5>
-                  <p><?php echo wp_trim_words(get_the_content(), 18); ?> <a href="<?php the_permalink(); ?>" class="nu gray">Learn more</a></p>
+                  <p><?php
+                    if(has_excerpt()){
+                      echo get_the_excerpt();
+                    } else {
+                      echo wp_trim_words(get_the_content(), 18);
+                    }
+                  ?>
+                  <a href="<?php the_permalink(); ?>" class="nu gray">Learn more</a></p>
                 </div>
               </div>
             <?php
             }
           ?>
  
-        <p class="t-center no-margin"><a href="/events" class="btn btn--blue">View All Events</a></p>
+        <p class="t-center no-margin"><a href="<?= get_post_type_archive_link('event'); ?>" class="btn btn--blue">View All Events</a></p>
 
       </div>
     </div>
@@ -68,7 +79,14 @@
               </a>
               <div class="event-summary__content">
                 <h5 class="event-summary__title headline headline--tiny"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h5>
-                <p><?= wp_trim_words(get_the_content(), 18); ?><a href="<?php the_permalink(); ?>" class="nu gray">Read more</a></p>
+                <p><?php
+                  if(has_excerpt()){
+                    echo get_the_excerpt();
+                  } else {
+                    echo wp_trim_words(get_the_content(), 18);
+                  }
+                 ?>
+                <a href="<?php the_permalink(); ?>" class="nu gray">Read more</a></p>
               </div>
             </div>
 
@@ -76,16 +94,6 @@
           }
          wp_reset_postdata(); // reset the global variables for the loop 
         ?>
-        <!-- <div class="event-summary">
-          <a class="event-summary__date event-summary__date--beige t-center" href="#">
-            <span class="event-summary__month">Feb</span>
-            <span class="event-summary__day">04</span>  
-          </a>
-          <div class="event-summary__content">
-            <h5 class="event-summary__title headline headline--tiny"><a href="#">Professors in the National Spotlight</a></h5>
-            <p>Two of our professors have been in national news lately. <a href="#" class="nu gray">Read more</a></p>
-          </div>
-        </div>  -->
         
         <p class="t-center no-margin"><a href="<?= site_url('/blog'); ?>" class="btn btn--yellow">View All Blog Posts</a></p>
       </div>
