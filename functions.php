@@ -41,4 +41,29 @@
     } 
 
     add_action('init', 'university_post_types');  
+
+    //custom query for the events page posts to display only future events
+    function university_adjust_queries($query){
+        //only on front end, not admin, is an event post type and is not a sub query
+        if(!is_admin() AND is_post_type_archive('event') AND $query->is_main_query() ) {
+            $today = date('Ymd');
+            $query->set('meta_key', 'event_date'); //ACF field date value
+            $query->set('order_by','meta_value_num');
+            $query->set('order', 'ASC');
+
+            $query->set('meta_query', array(
+                'key' => 'event_date',
+                'compare' => '>=',
+                'value' => $today,
+                'type' => 'numeric'
+                )
+            );//must have closing semi colon 
+        }
+
+        // echo "<pre>";
+        // print_r($query);
+    }
+    //before WP queries the posts in the database
+    add_action('pre_get_posts', 'university_adjust_queries');
+
 ?>
