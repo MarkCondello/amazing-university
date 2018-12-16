@@ -54,12 +54,34 @@
             ),
             'menu_icon' => 'dashicons-calendar' 
         ));
+
+        register_post_type('program', array(
+            'supports' => array('title', 'editor' ),
+            'has_archive' => true,
+            'rewrite' => array('slug' => 'programs'),
+            'public' => true,
+            'labels' => array(
+                'name' => 'Programs',
+                'add_new_item' => 'Add New Program',
+                'edit_item' => 'Edit Program',
+                'all_items' => 'All Programs',
+                'singular_name' => 'Program'
+            ),
+            'menu_icon' => 'dashicons-welcome-learn-more' 
+        ));
     } 
 
     add_action('init', 'university_post_types');  
 
     //custom query for the events page posts to display only future events
     function university_adjust_queries($query){
+        //only on front end, not admin, is an program post type and is not a sub query
+        if(!is_admin() AND is_post_type_archive('program') AND $query->is_main_query() ) {
+            $query->set('orderby','title');
+            $query->set('order', 'ASC');
+            $query->set('posts_per_page', -1);
+        }
+
         //only on front end, not admin, is an event post type and is not a sub query
         if(!is_admin() AND is_post_type_archive('event') AND $query->is_main_query() ) {
             $today = date('Ymd');

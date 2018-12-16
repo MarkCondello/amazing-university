@@ -1,7 +1,6 @@
 <?php get_header();  ?>
 
-<!-- blog listing template for single posts -->
-<div class="page-banner">
+ <div class="page-banner">
   <div class="page-banner__bg-image" style="background-image: url(<?= get_theme_file_uri('/images/library-hero.jpg'); ?>"></div>
     <div class="page-banner__content container t-center c-white">
       <h1 class="headline headline--large">All Events</h1>
@@ -37,7 +36,6 @@
     ?>
     <hr class="section-break"/>
     <p>Looking for a recap of past event. <a href="<?php echo site_url('/past-events'); ?>" >Check out our past events.</a></p>
-
 </div>
   
 <?php get_footer();  ?>
