@@ -1,5 +1,3 @@
- 
-
 <?php get_header();  ?>
 
 <!-- blog listing template for single posts -->
