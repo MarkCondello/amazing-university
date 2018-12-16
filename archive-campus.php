@@ -10,20 +10,18 @@
 </div>
 
 <div class="acf-map">
-     <?php
-        while(have_posts()){
-            the_post(); 
-            $mapLocation = get_field("map_location");
-            ?>
-            <div class="marker" data-lat ="<?=  $mapLocation['lat']; ?>" data-lng="<?= $mapLocation['lng']; ?>">
-            <!-- <a href="<?php //the_permalink(); ?>"><?php //the_title();  
-            //print_r($mapLocation);
-            ?></a> -->
-            </div>
-         <?php
-        }
-        echo paginate_links();
+  <?php
+    while(have_posts()){
+        the_post(); 
+        $mapLocation = get_field("map_location");
         ?>
+        <div class="marker" data-lat ="<?=  $mapLocation['lat']; ?>" data-lng="<?= $mapLocation['lng']; ?>">
+          <a href="<?php the_permalink(); ?>"><h3><?= the_title(); ?></h3></a>
+          <?php echo $mapLocation['address']; ?>
+        </div>
+      <?php
+    }
+  ?>
  </div>
   
 <?php get_footer();  ?>
