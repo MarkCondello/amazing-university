@@ -1,4 +1,60 @@
 <?php
+//my attempt at the banner function, which works
+function page_banner(  $pageBannerImg, $banner_title) {
+    if($pageBannerImg) :
+        $pageBannerImg = $pageBannerImg['sizes']['pageBanner'];
+     else :
+        $pageBannerImg = get_theme_file_uri('/images/ocean.jpg');
+     endif;  
+     if( $banner_title) :
+        $banner_title =  $banner_title;
+     else :
+        $banner_title = "Generic title content" ; 
+     endif;
+
+    $html = '<div class="page-banner">';
+        $html .= '<div class="page-banner__bg-image" style="background-image: url(' . $pageBannerImg . ')"></div>';
+        $html .= '<div class="page-banner__content container container--narrow">';
+             $html .= '<h1 class="page-banner__title">' . get_the_title() . '</h1>';
+
+             $html .= '<div class="page-banner__intro">';  
+               $html .= '<p>' . $banner_title . ' </p>';
+             $html .= '</div>';   
+         $html .= '</div>';  
+    $html .= '</div>';
+    echo $html;
+}
+
+function pageBanner($args = NULL){
+    if(!$args['title']):
+        $args['title'] = get_the_title();
+    endif;
+
+    if(!$args['subtitle']) :
+        $args['subtitle'] = get_field("page_banner_title");
+    endif;
+
+    if(!$args['photo']) :
+        if(get_field("page_banner_background_image")) :
+            $args['photo'] = get_field("page_banner_background_image")['sizes']['pageBanner'];
+        else:
+            $args['photo'] = get_theme_file_uri('/images/ocean.jpg');
+        endif;
+    endif;
+    ?>
+    <div class="page-banner">
+        <div class="page-banner__bg-image" style="background-image: url(<?php echo $args['photo']; ?>">
+         </div>
+        <div class="page-banner__content container container--narrow">
+            <h1 class="page-banner__title"><?php echo $args['title'] ?></h1>
+            <div class="page-banner__intro">
+                <p><?php echo $args['subtitle']; ?></p>
+            </div>
+        </div>  
+    </div>
+    <?php
+}
+
 function university_files() {
     wp_enqueue_script('google_maps_scripts',  '//maps.googleapis.com/maps/api/js?key=AIzaSyDGuO_eDH5fSneJ9dv2U9r3pdUdY_IBoBA', null, '1.0', true );
 
@@ -18,6 +74,11 @@ function university_features(){
     register_nav_menu('footerLocationTwo', 'Footer Location Two');
 
     add_theme_support('title-tag');
+    //include featured images
+    add_theme_support('post-thumbnails');
+    add_image_size('professorLandscape', 400, 260, true);
+    add_image_size('professorPortrait', 480, 650, true);
+    add_image_size('pageBanner', 1500, 350, true);
 }
 
 add_action('after_setup_theme', 'university_features');
@@ -66,6 +127,20 @@ function university_post_types(){
             'all_items' => 'All Programs',
             'singular_name' => 'Program'
         ),
+        'menu_icon' => 'dashicons-lightbulb' 
+    ));
+
+
+    register_post_type('professor', array(
+        'supports' => array('title', 'editor', 'excerpt', 'thumbnail' ),
+        'public' => true,
+        'labels' => array(
+            'name' => 'Professors',
+            'add_new_item' => 'Add New Professor',
+            'edit_item' => 'Edit Professor',
+            'all_items' => 'All Professors',
+            'singular_name' => 'Professor'
+        ),
         'menu_icon' => 'dashicons-welcome-learn-more' 
     ));
 } 
@@ -106,6 +181,8 @@ function universityMapKey($api) {
     return $api;
 }
 
-add_filter('acf/fields/google_map/api', 'universityMapKey')
+add_filter('acf/fields/google_map/api', 'universityMapKey');
+
+
 
 ?>

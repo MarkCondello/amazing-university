@@ -1,19 +1,11 @@
 <!-- fallback page template for non specific pages-->
-
 <?php  
 get_header();  
 while(have_posts( )) {
-    the_post();//keeps track of which post we are working with
+    the_post(); 
+    pageBanner();
 ?>
-    <div class="page-banner">
-        <div class="page-banner__bg-image" style="background-image: url(<?= get_theme_file_uri('/images/ocean.jpg'); ?>"></div>
-        <div class="page-banner__content container container--narrow">
-            <h1 class="page-banner__title"><?= the_title(); ?></h1>
-            <div class="page-banner__intro">
-                <p>Include the sub field as a custom field content area.</p>
-            </div>
-        </div>  
-    </div>
+    
     <div class="container container--narrow page-section">
 <?php  
 //if the following returns a value which is not 0 (false) it is a child page, requires the current page ID (get_the_ID())
