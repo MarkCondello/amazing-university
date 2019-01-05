@@ -1,14 +1,13 @@
+<!-- blog listing template for single campus posts on google map-->
 <?php get_header();  ?>
-
-<!-- blog listing template for single campus posts -->
 <div class="page-banner">
-  <div class="page-banner__bg-image" style="background-image: url(<?= get_theme_file_uri('/images/library-hero.jpg'); ?>"></div>
-    <div class="page-banner__content container t-center c-white">
-      <h1 class="headline headline--large">Our Campuses</h1>
-      <p>We have several conveniently located campuses.</p>
+  <div class="page-banner__bg-image" style="background-image: url(<?= get_theme_file_uri('/images/library-hero.jpg'); ?>">
+  </div>
+  <div class="page-banner__content container t-center c-white">
+    <h1 class="headline headline--large">Our Campuses</h1>
+    <p>We have several conveniently located campuses.</p>
   </div>
 </div>
-
 <div class="acf-map">
   <?php
     while(have_posts()){
@@ -22,6 +21,5 @@
       <?php
     }
   ?>
- </div>
-  
+</div>
 <?php get_footer();  ?>

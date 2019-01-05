@@ -1,28 +1,24 @@
+<!-- single program post template -->
 <?php  
 get_header();  
-    while(have_posts( )) {
-        the_post();//keeps track of which post we are working with
-        ?>
+while(have_posts( )) {
+    the_post(); 
+    ?>
     <div class="page-banner">
         <div class="page-banner__bg-image" style="background-image: url(<?= get_theme_file_uri('/images/library-hero.jpg'); ?>"></div>
             <div class="page-banner__content container t-center c-white">
             <h1 class="headline headline--large"><?= the_title(); ?></h1>
         </div>
     </div>
-
     <div class="container container--narrow page-section">
-
         <div class="metabox metabox--position-up metabox--with-home-link">
             <p><a class="metabox__blog-home-link" href="<?php echo  get_post_type_archive_link('program'); ?>"><i class="fa fa-home" aria-hidden="true"></i> All Programs </a> <span class="metabox__main"><?php the_title(); ?> </span></p>
         </div>
         <div class="generic-content">    
              <?= the_content(); ?>
-  
         </div>
-
-
     <?php 
-        // get the related event which is selected in the acf field within the Event post type
+        // get the related event associated with this program which is selected in the acf field within  Event posts
             $today = date('Ymd');
             $homePageEvents = new WP_Query(array(
               'posts_per_page' => 2,
@@ -49,7 +45,6 @@ get_header();
             ));
 
             if($homePageEvents->have_posts()) :
-
                 echo '<hr class="section-break">';
                 echo '<h2 class="headline headline--medium">Upcoming ' . get_the_title() .' Events</h2>';
             while($homePageEvents->have_posts()){
@@ -80,9 +75,7 @@ get_header();
             }
         endif;
           ?>
-
     </div>
-
 <?php }
 get_footer();  
 ?>
