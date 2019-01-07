@@ -81,7 +81,27 @@ if($relatedEvents->have_posts()) :
     get_template_part('template-parts/content', 'event');
   endwhile;
 endif;
+wp_reset_postdata();
+
+//get the related campuses for this program from ACF
+$relatedCampuses = get_field('related_campus');
+if($relatedCampuses) :
+  echo "<hr class='section-break'>";
+  echo "<h2 class='headline headline--medium'>" . get_the_title() . " is available at these campuses:</h2>";
+  echo "<ul class='min-list link-list'>";
+  foreach($relatedCampuses as $campus) {
+    //$campus is used as the ID to get the permalink and the title from
+    ?>
+    <li><a href="<?php echo get_the_permalink($campus); ?>"> <?php echo get_the_title($campus); ?></a></li>
+    <?php
+  }
+  echo "</ul>";
+endif;
 ?>
+
+
+
+
 </div>
 <?php }
 get_footer();  

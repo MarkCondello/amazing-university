@@ -156,6 +156,11 @@ function university_adjust_queries($query){
         $query->set('posts_per_page', -1);
     }
 
+    //only on front end, not admin, is an campus post type and is not a sub query
+    if(!is_admin() AND is_post_type_archive('campus') AND $query->is_main_query() ) {
+        $query->set('posts_per_page', -1);
+    }
+    
     //only on front end, not admin, is an event post type and is not a sub query
     if(!is_admin() AND is_post_type_archive('event') AND $query->is_main_query() ) {
         $today = date('Ymd');
@@ -172,6 +177,8 @@ function university_adjust_queries($query){
     }
     // echo "<pre>";
     // print_r($query);
+
+    
 }
 //before WP queries the posts in the database
 add_action('pre_get_posts', 'university_adjust_queries');
