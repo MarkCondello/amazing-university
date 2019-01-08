@@ -64,6 +64,13 @@ function university_files() {
 
     wp_enqueue_style('font_awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css' );
     wp_enqueue_style('university_main_styles', get_stylesheet_uri(), NULL, microtime() );
+
+    //wordpress method for including markup in the dom related to the server which is extensible so we can add whatever properties we want in the assoicative array
+    wp_localize_script('university_main_scripts', 'uniData', array(
+        'root_url' => get_site_url(),
+        'test' =>  'abc',
+        )
+    );
 }
 
 add_action('wp_enqueue_scripts', 'university_files');
