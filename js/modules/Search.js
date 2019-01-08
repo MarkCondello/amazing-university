@@ -84,15 +84,14 @@ class Search {
         this.previousValue = this.searchField.val();
     }
 
-    getResults(){
-        this.isSpinnerVisible = false;
-  
-        //relative url using wp_localize_script values added in functions.php
-        $.getJSON(uniData.root_url + '/wp-json/wp/v2/posts?search=' + this.searchField.val(), (posts) => {//bind function to the class using es6 arrow function
-           // console.log(posts.length, posts);
-           $.getJSON(uniData.root_url + '/wp-json/wp/v2/pages?search=' + this.searchField.val(), pages =>{
-            var combinedResults = posts.concat(pages);
-
+    getResults(){  
+        $.when(
+            $.getJSON(uniData.root_url + '/wp-json/wp/v2/posts?search=' + this.searchField.val()), 
+            $.getJSON(uniData.root_url + '/wp-json/wp/v2/pages?search=' + this.searchField.val())
+            )
+            .then((posts, pages)=>{
+            var combinedResults = posts[0].concat(pages[0]);
+            //console.log(posts);console.log(combinedResults);
             this.searchResults.html(`
             <h2 class="search-overlay__section-title">General Information</h2>
 
@@ -102,8 +101,17 @@ class Search {
         
             `);
             this.isSpinnerVisible = false;
+            }, ()=> {
+                this.searchResults.html('<p>Unexpected error; please try again.</p>');
+            }
+        );
+ /*        //relative url using wp_localize_script values added in functions.php
+        $.getJSON(uniData.root_url + '/wp-json/wp/v2/posts?search=' + this.searchField.val(), (posts) => {//bind function to the class using es6 arrow function
+           // console.log(posts.length, posts);
+           $.getJSON(uniData.root_url + '/wp-json/wp/v2/pages?search=' + this.searchField.val(), pages =>{
+           
            });
-        });
+        }); */
     }
 
      addSearchHTML(){
