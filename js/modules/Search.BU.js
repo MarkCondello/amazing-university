@@ -86,23 +86,17 @@ class Search {
 
     getResults(){  
         $.when(
-            //CPT will need to be included here
             $.getJSON(uniData.root_url + '/wp-json/wp/v2/posts?search=' + this.searchField.val()), 
-            $.getJSON(uniData.root_url + '/wp-json/wp/v2/pages?search=' + this.searchField.val()),
-            $.getJSON(uniData.root_url + '/wp-json/wp/v2/program?search=' + this.searchField.val())
+            $.getJSON(uniData.root_url + '/wp-json/wp/v2/pages?search=' + this.searchField.val())
             )
-            .then((posts, pages, programs)=>{
-            //CPT results will need to be concatenated here
-            var combinedResults = posts[0].concat(pages[0].concat(programs[0]));
+            .then((posts, pages)=>{
+            var combinedResults = posts[0].concat(pages[0]);
             //console.log(posts);console.log(combinedResults);
             this.searchResults.html(`
             <h2 class="search-overlay__section-title">General Information</h2>
 
             ${combinedResults.length ? '<ul class="link-list min-list">' : '<p>no results found</p>'}
-            ${combinedResults.map(item => `<li><a href="${item.link}"> 
-            ${item.title.rendered}</a> 
-            ${item.type == 'post'? `by ${item.authorName}` : ''}
-            </li>`).join('')}
+            ${combinedResults.map(item => `<li><a href="${item.link}"> ${item.title.rendered } </a></li>`).join('')}
             ${combinedResults.length ? ' </ul>' : "" }
         
             `);

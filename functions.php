@@ -1,4 +1,20 @@
 <?php
+//custom REST API properties
+function uni_custom_rest(){
+    register_rest_field('post', 'authorName', array(
+        'get_callback' => function(){
+            return get_the_author();
+        }
+    ));
+
+    register_rest_field('post', 'featuredImg', array(
+        'get_callback' => function(){
+            return get_the_post_thumbnail();
+        }
+    ));
+}
+
+add_action('rest_api_init', 'uni_custom_rest');
 //my attempt at the banner function, which works
 function page_banner(  $pageBannerImg, $banner_title) {
     if($pageBannerImg) :
@@ -134,7 +150,8 @@ function university_post_types(){
             'all_items' => 'All Programs',
             'singular_name' => 'Program'
         ),
-        'menu_icon' => 'dashicons-lightbulb' 
+        'menu_icon' => 'dashicons-lightbulb',
+        'show_in_rest' => true
     ));
 
 
