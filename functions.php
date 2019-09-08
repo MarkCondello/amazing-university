@@ -12,9 +12,19 @@ function uni_custom_rest(){
             return get_the_post_thumbnail();
         }
     ));
+
+    register_rest_field('post', 'bannerTitle', array(
+        'get_callback' => function(){
+            return get_field('page_banner_title');
+        }
+    ));
+
+    
 }
 
 add_action('rest_api_init', 'uni_custom_rest');
+
+
 //my attempt at the banner function, which works
 function page_banner(  $pageBannerImg, $banner_title) {
     if($pageBannerImg) :
@@ -109,6 +119,8 @@ add_action('after_setup_theme', 'university_features');
 //was not working in the mu_plugin directory
 function university_post_types(){
     register_post_type('campus', array(
+        'capability_type' => 'campus',
+        'map_meta_cap' => true,
         'supports' => array('title', 'editor', 'excerpt'),
         'has_archive' => true,
         'rewrite' => array('slug' => 'campuses'),
@@ -124,6 +136,8 @@ function university_post_types(){
     ));
 
     register_post_type('event', array(
+        'capability_type' => 'event',
+        'map_meta_cap' => 'true',
         'supports' => array('title', 'editor', 'excerpt'),
         'has_archive' => true,
         'rewrite' => array('slug' => 'events'),
@@ -211,9 +225,41 @@ function universityMapKey($api) {
     $api['key'] = 'AIzaSyDGuO_eDH5fSneJ9dv2U9r3pdUdY_IBoBA';
     return $api;
 }
-
 add_filter('acf/fields/google_map/api', 'universityMapKey');
 
+//redirect to home page instead of admin if subscriber 
+function redirect_subs_to_home(){
+    $currentUser = wp_get_current_user();
+    if(count($currentUser->roles) == 1 && $currentUser->roles[0] == "subscriber"){
+        wp_redirect(site_url('/'));
+        exit;
+    }
+}
+add_action('admin_init', 'redirect_subs_to_home');
 
+//remove to topbar admin if subscriber is logged
+function remove_topbar(){
+    $currentUser = wp_get_current_user();
+    if(count($currentUser->roles) == 1 && $currentUser->roles[0] == "subscriber"){
+        show_admin_bar(false);
+     }
+}
+add_action('wp_loaded', 'remove_topbar');
 
+function ourHeaderUrl(){
+    return esc_url(site_url('/'));
+}
+add_filter("login_headerurl", "ourHeaderUrl");
+
+function ourLoginCss(){
+    wp_enqueue_style('university_main_styles', get_stylesheet_uri(), NULL, microtime() );
+    wp_enqueue_style('custom_google_fonts', 'https://fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,400i,700,700i|Roboto:100,300,400,400i,700,700i');
+
+}
+add_action("login_enqueue_scripts", "ourLoginCss");
+
+function ourLoginTitle(){
+    return get_bloginfo("name");
+}
+add_filter("login_headertitle", "ourLoginTitle");
 ?>
