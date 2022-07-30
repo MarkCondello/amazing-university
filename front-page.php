@@ -1,7 +1,6 @@
-<?php 
-//home page template
-get_header();  
-?>  
+<?php
+get_header();
+?>
   <div class="page-banner">
     <div class="page-banner__bg-image" style="background-image: url(<?= get_theme_file_uri('/images/library-hero.jpg'); ?>"></div>
       <div class="page-banner__content container t-center c-white">
@@ -34,7 +33,7 @@ get_header();
               )
             ));
             while($homePageEvents->have_posts()){
-              $homePageEvents->the_post();  
+              $homePageEvents->the_post();
               get_template_part('template-parts/content', 'event');
             }
           ?>
@@ -110,6 +109,6 @@ get_header();
     </div>
   </div>
 </div>
- <?php  
-  get_footer();  
+<?php
+  get_footer();
 ?>

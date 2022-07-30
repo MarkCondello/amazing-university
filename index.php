@@ -1,5 +1,5 @@
 <!-- blog listing template for posts -->
-<?php get_header();  
+<?php get_header();
 pageBanner(array(
   'title' => 'Welcome to our blog!',
   'subtitle' => 'Keep up with our latest news.',
@@ -19,7 +19,7 @@ pageBanner(array(
         <p><a class="btn btn--blue" href="<?= the_permalink(); ?>">continue reading</a></p>
       </div>
     </div>
-<?php } 
+<?php }
 echo paginate_links();
 ?>
 </div>
