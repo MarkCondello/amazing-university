@@ -6,20 +6,16 @@ function uni_custom_rest(){
             return get_the_author();
         }
     ));
-
     register_rest_field('post', 'featuredImg', array(
         'get_callback' => function(){
             return get_the_post_thumbnail();
         }
     ));
-
     register_rest_field('post', 'bannerTitle', array(
         'get_callback' => function(){
             return get_field('page_banner_title');
         }
     ));
-
-    
 }
 
 add_action('rest_api_init', 'uni_custom_rest');
@@ -113,7 +109,6 @@ function university_features(){
     add_image_size('professorPortrait', 480, 650, true);
     add_image_size('pageBanner', 1500, 350, true);
 }
-
 add_action('after_setup_theme', 'university_features');
 
 //was not working in the mu_plugin directory
