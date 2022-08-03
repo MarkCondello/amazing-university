@@ -103,6 +103,76 @@ function university_features(){
 }
 add_action('after_setup_theme', 'university_features');
 
+function university_adjust_queries($query){
+    if (!is_admin() && is_post_type_archive('program') && $query->is_main_query()) {
+        $query->set('orderby','title');
+        $query->set('order', 'ASC');
+        $query->set('posts_per_page', -1);
+    }
+    if (!is_admin() && is_post_type_archive('campus') && $query->is_main_query()) {
+        $query->set('posts_per_page', -1);
+    }
+    //custom query for the events page posts to display only future events
+    if (!is_admin() && is_post_type_archive('event') && $query->is_main_query()) {
+        $today = date('Ymd');
+        $query->set('meta_key', 'event_date'); //ACF field date value
+        $query->set('order_by','meta_value_num');
+        $query->set('order', 'ASC');
+        $query->set('meta_query', array(
+            'key' => 'event_date',
+            'compare' => '>=',
+            'value' => $today,
+            'type' => 'numeric'
+            )
+        );
+    }
+}
+add_action('pre_get_posts', 'university_adjust_queries'); //before WP queries the posts in the database
+
+function universityMapKey($api) {
+    $api['key'] = 'AIzaSyDGuO_eDH5fSneJ9dv2U9r3pdUdY_IBoBA';
+    return $api;
+}
+add_filter('acf/fields/google_map/api', 'universityMapKey');
+
+//redirect to home page instead of admin if subscriber 
+function redirect_subs_to_home(){
+    $currentUser = wp_get_current_user();
+    if(count($currentUser->roles) == 1 && $currentUser->roles[0] == "subscriber"){
+        wp_redirect(site_url('/'));
+        exit;
+    }
+}
+add_action('admin_init', 'redirect_subs_to_home');
+
+//remove to topbar admin if subscriber is logged
+function remove_topbar(){
+    $currentUser = wp_get_current_user();
+    if(count($currentUser->roles) == 1 && $currentUser->roles[0] == "subscriber"){
+        show_admin_bar(false);
+     }
+}
+add_action('wp_loaded', 'remove_topbar');
+
+function ourHeaderUrl(){
+    return esc_url(site_url('/'));
+}
+add_filter("login_headerurl", "ourHeaderUrl");
+
+function ourLoginCss(){
+    wp_enqueue_style('university_main_styles', get_stylesheet_uri(), NULL, microtime() );
+    wp_enqueue_style('custom_google_fonts', 'https://fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,400i,700,700i|Roboto:100,300,400,400i,700,700i');
+
+}
+add_action("login_enqueue_scripts", "ourLoginCss");
+
+function ourLoginTitle(){
+    return get_bloginfo("name");
+}
+add_filter("login_headertitle", "ourLoginTitle");
+
+
+
 // //this code reside in the mu-plugin directory
 // function university_post_types(){
 //     register_post_type('campus', array(
@@ -168,76 +238,4 @@ add_action('after_setup_theme', 'university_features');
 //     ));
 // } 
 // add_action('init', 'university_post_types', 1);
-
-//custom query for the events page posts to display only future events
-function university_adjust_queries($query){
-    //only on front end, not admin, is an program post type and is not a sub query
-    if(!is_admin() AND is_post_type_archive('program') AND $query->is_main_query() ) {
-        $query->set('orderby','title');
-        $query->set('order', 'ASC');
-        $query->set('posts_per_page', -1);
-    }
-    //only on front end, not admin, is an campus post type and is not a sub query
-    if(!is_admin() AND is_post_type_archive('campus') AND $query->is_main_query() ) {
-        $query->set('posts_per_page', -1);
-    }
-    //only on front end, not admin, is an event post type and is not a sub query
-    if(!is_admin() AND is_post_type_archive('event') AND $query->is_main_query() ) {
-        $today = date('Ymd');
-        $query->set('meta_key', 'event_date'); //ACF field date value
-        $query->set('order_by','meta_value_num');
-        $query->set('order', 'ASC');
-        $query->set('meta_query', array(
-            'key' => 'event_date',
-            'compare' => '>=',
-            'value' => $today,
-            'type' => 'numeric'
-            )
-        );
-    }
-}
-//before WP queries the posts in the database
-add_action('pre_get_posts', 'university_adjust_queries');
-
-function universityMapKey($api) {
-    $api['key'] = 'AIzaSyDGuO_eDH5fSneJ9dv2U9r3pdUdY_IBoBA';
-    return $api;
-}
-add_filter('acf/fields/google_map/api', 'universityMapKey');
-
-//redirect to home page instead of admin if subscriber 
-function redirect_subs_to_home(){
-    $currentUser = wp_get_current_user();
-    if(count($currentUser->roles) == 1 && $currentUser->roles[0] == "subscriber"){
-        wp_redirect(site_url('/'));
-        exit;
-    }
-}
-add_action('admin_init', 'redirect_subs_to_home');
-
-//remove to topbar admin if subscriber is logged
-function remove_topbar(){
-    $currentUser = wp_get_current_user();
-    if(count($currentUser->roles) == 1 && $currentUser->roles[0] == "subscriber"){
-        show_admin_bar(false);
-     }
-}
-add_action('wp_loaded', 'remove_topbar');
-
-function ourHeaderUrl(){
-    return esc_url(site_url('/'));
-}
-add_filter("login_headerurl", "ourHeaderUrl");
-
-function ourLoginCss(){
-    wp_enqueue_style('university_main_styles', get_stylesheet_uri(), NULL, microtime() );
-    wp_enqueue_style('custom_google_fonts', 'https://fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,400i,700,700i|Roboto:100,300,400,400i,700,700i');
-
-}
-add_action("login_enqueue_scripts", "ourLoginCss");
-
-function ourLoginTitle(){
-    return get_bloginfo("name");
-}
-add_filter("login_headertitle", "ourLoginTitle");
 ?>
