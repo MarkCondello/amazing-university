@@ -16,7 +16,7 @@
                 "id": ""
             },
             "post_type": [
-                "event"
+                "program"
             ],
             "taxonomy": "",
             "filters": [
@@ -46,5 +46,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1659525915
+    "modified": 1659565381
 }

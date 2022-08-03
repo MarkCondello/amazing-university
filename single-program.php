@@ -1,7 +1,8 @@
+<!-- Review video 37 for breakdown of the query logic -->
 <?php
 get_header();
 pageBanner();
-while(have_posts()) {
+while(have_posts()):
   the_post();?>
 <div class="container container--narrow page-section">
   <div class="metabox metabox--position-up metabox--with-home-link">
@@ -16,25 +17,24 @@ while(have_posts()) {
   </div>
 <?php
 $relatedProfessors = new WP_Query(array(
-  'posts_per_page' => -1, //all professors
+  'posts_per_page' => -1,
   'post_type' => 'professor',
   'order_by' => 'title',
   'order' => 'ASC',
-  //only show posts in the future, not the past
-  'meta_query' => array(
-    //filter by related programs which have the ID 
+  'meta_query' => array( //filter by related programs which have the ID 
     array(
-        'key' => 'related_programs', //ACF field we setup in events
-        'compare' => 'LIKE',
-        'value' => '"' . get_the_ID()  . '"', // serialize the array values to a string
+      'key' => 'related_programs', //ACF field we setup in events
+      'compare' => 'LIKE',
+      'value' => '"' . get_the_ID()  . '"', // serialize the array values to a string
     )
   )
 ));
-if ($relatedProfessors->have_posts()) :
-  echo '<hr class="section-break">';
-  echo '<h2 class="headline headline--medium">' . get_the_title() .' Professors</h2>';
-  echo '<ul>';
-  while($relatedProfessors->have_posts()){
+if ($relatedProfessors->have_posts()): ?>
+  <hr class="section-break">
+  <h2 class="headline headline--medium"><?= get_the_title() ?> Professors</h2>
+  <ul>
+<?php
+  while($relatedProfessors->have_posts()):
     $relatedProfessors->the_post(); ?>
     <li class="professor-card__list-item">
       <a class="professor-card" href="<?php the_permalink();?>" >
@@ -43,8 +43,9 @@ if ($relatedProfessors->have_posts()) :
       </a>  
     </li>
   <?php
-  }
-  echo '</ul>';
+  endwhile; ?>
+  </ul>
+<?php
   wp_reset_postdata(); // reset the global post object to the url based query
 endif;
 // get the related event associated with this program which is selected in the acf field within Event posts
@@ -71,16 +72,16 @@ $relatedEvents = new WP_Query(array(
     )
   )
 ));
-if($relatedEvents->have_posts()) :
-  echo '<hr class="section-break">';
-  echo '<h2 class="headline headline--medium">Upcoming ' . get_the_title() .' Events</h2>';
+if($relatedEvents->have_posts()): ?>
+  <hr class="section-break">
+  <h2 class="headline headline--medium">Upcoming <?= get_the_title() ?> Events</h2>
+  <?php
   while($relatedEvents->have_posts()):
     $relatedEvents->the_post(); 
     get_template_part('template-parts/content', 'event');
   endwhile;
 endif;
 wp_reset_postdata();
-
 //get the related campuses for this program from ACF
 $relatedCampuses = get_field('related_campus');
 if($relatedCampuses) :
@@ -94,13 +95,8 @@ if($relatedCampuses) :
     <?php
   }
   echo "</ul>";
-endif;
-?>
-
-
-
-
+endif;?>
 </div>
-<?php }
-get_footer();  
-?>
+<?php
+endwhile;
+get_footer();?>
