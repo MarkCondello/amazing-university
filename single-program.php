@@ -1,22 +1,24 @@
-<!-- single program post template -->
-<?php  
-get_header();  
+<?php
+get_header();
 pageBanner();
-while(have_posts( )) {
-  the_post(); 
-?>
+while(have_posts()) {
+  the_post();?>
 <div class="container container--narrow page-section">
   <div class="metabox metabox--position-up metabox--with-home-link">
-      <p><a class="metabox__blog-home-link" href="<?php echo  get_post_type_archive_link('program'); ?>"><i class="fa fa-home" aria-hidden="true"></i> All Programs </a> <span class="metabox__main"><?php the_title(); ?> </span></p>
+      <p>
+        <a class="metabox__blog-home-link" href="<?php echo  get_post_type_archive_link('program'); ?>">
+          <i class="fa fa-home" aria-hidden="true"></i> All Programs </a>
+          <span class="metabox__main"><?php the_title(); ?> </span>
+      </p>
   </div>
-  <div class="generic-content">    
-        <?= the_content(); ?>
+  <div class="generic-content">
+    <?= the_content(); ?>
   </div>
-<?php 
+<?php
 $relatedProfessors = new WP_Query(array(
   'posts_per_page' => -1, //all professors
   'post_type' => 'professor',
-    'order_by' => 'title',
+  'order_by' => 'title',
   'order' => 'ASC',
   //only show posts in the future, not the past
   'meta_query' => array(
@@ -28,8 +30,7 @@ $relatedProfessors = new WP_Query(array(
     )
   )
 ));
-
-if($relatedProfessors->have_posts()) :
+if ($relatedProfessors->have_posts()) :
   echo '<hr class="section-break">';
   echo '<h2 class="headline headline--medium">' . get_the_title() .' Professors</h2>';
   echo '<ul>';
@@ -46,8 +47,7 @@ if($relatedProfessors->have_posts()) :
   echo '</ul>';
   wp_reset_postdata(); // reset the global post object to the url based query
 endif;
-
-// get the related event associated with this program which is selected in the acf field within  Event posts
+// get the related event associated with this program which is selected in the acf field within Event posts
 $today = date('Ymd');
 $relatedEvents = new WP_Query(array(
   'posts_per_page' => 2,
@@ -57,22 +57,20 @@ $relatedEvents = new WP_Query(array(
   'order' => 'ASC',
   //only show posts in the future, not the past
   'meta_query' => array(
-      //filter by the date
     array(
       'key' => 'event_date',
       'compare' => '>=',
       'value' => $today,
       'type' => 'numeric'
     ),
-    //filter by related programs which have the ID 
+    //filter by related programs which have the ID
     array(
-      'key' => 'related_programs', //ACF field we setup in events
+      'key' => 'related_program', //ACF field we setup in events
       'compare' => 'LIKE',
       'value' => '"' . get_the_ID()  . '"', // serialize the array values to a string
     )
   )
 ));
-
 if($relatedEvents->have_posts()) :
   echo '<hr class="section-break">';
   echo '<h2 class="headline headline--medium">Upcoming ' . get_the_title() .' Events</h2>';
