@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import $ from 'jquery/dist/jquery';
 
 class HeroSlider {
   constructor() {

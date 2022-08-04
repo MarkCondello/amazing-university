@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import $ from 'jquery/dist/jquery';
 
 class Search {
     //1. constructor describes the objects properties and loads its methods

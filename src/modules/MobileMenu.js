@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import $ from 'jquery/dist/jquery';
 
 class MobileMenu {
   constructor() {
@@ -15,4 +15,4 @@ class MobileMenu {
   }
 }
 
-// export default MobileMenu;
+export default MobileMenu;
