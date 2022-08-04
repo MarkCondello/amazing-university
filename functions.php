@@ -74,11 +74,14 @@ function pageBanner($args = NULL){
 }
 
 function university_files() {
-    wp_enqueue_script('google_maps_scripts',  '//maps.googleapis.com/maps/api/js?key=AIzaSyDGuO_eDH5fSneJ9dv2U9r3pdUdY_IBoBA', null, '1.0', true );
-    wp_enqueue_script('university_main_scripts', get_theme_file_uri('/js/scripts-bundled.js'), null, microtime(), true );
+    wp_enqueue_script('google_maps_scripts', '//maps.googleapis.com/maps/api/js?key=AIzaSyDGuO_eDH5fSneJ9dv2U9r3pdUdY_IBoBA', null, '1.0', true );
+    wp_enqueue_script('university_main_scripts', get_theme_file_uri('/build/index.js'), null, microtime(), true );
+    // wp_enqueue_script('university_main_scripts', get_theme_file_uri('/js/scripts-bundled.js'), null, microtime(), true );
     wp_enqueue_style('custom_google_fonts', 'https://fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,400i,700,700i|Roboto:100,300,400,400i,700,700i');
     wp_enqueue_style('font_awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css' );
-    wp_enqueue_style('university_main_styles', get_stylesheet_uri(), NULL, microtime() );
+    wp_enqueue_style('university_reset_styles',  get_theme_file_uri('/build/index.css'), NULL, microtime() );
+    wp_enqueue_style('university_main_styles',  get_theme_file_uri('/build/style-index.css'), NULL, microtime() );
+    // wp_enqueue_style('university_main_styles', get_stylesheet_uri(), NULL, microtime() );
     //wordpress method for including markup in the dom related to the server which is extensible so we can add whatever properties we want in the assoicative array
     wp_localize_script('university_main_scripts', 'uniData', array(
         'root_url' => get_site_url(),
