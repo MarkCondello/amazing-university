@@ -15,7 +15,9 @@ while(have_posts()): the_post();
     $parentPages = get_pages(['child_of' => get_the_ID(), ]);
     if ($the_parent || $parentPages ): ?>
     <div class="page-links">
-        <h2 class="page-links__title"><a href="<?= get_permalink($the_parent); ?>"><?= get_the_title($the_parent); ?></a></h2>
+        <h2 class="page-links__title">
+            <a href="<?= get_permalink($the_parent); ?>"><?= get_the_title($the_parent); ?></a>
+        </h2>
         <ul class="min-list">
 <?php   if ($the_parent) {
             $findChildrenOf = $the_parent;

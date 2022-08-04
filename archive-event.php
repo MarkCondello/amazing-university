@@ -1,5 +1,9 @@
 <?php get_header();
-pageBanner(['title' => "All Events", 'subtitle' => "See what is going on in out world...",]); ?>
+pageBanner([
+    'title' => "All Events",
+    'subtitle' => "See what is going on in out world...",
+    'photo' => get_template_directory_uri() . '/images/ocean.jpg',
+]); ?>
 <div class="container container--narrow page-section">
 <?php //this archive is running on a custom query which is written in functions.php
     while(have_posts()):

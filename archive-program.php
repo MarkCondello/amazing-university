@@ -2,6 +2,7 @@
 pageBanner([
     'title' => "All Programs",
     'subtitle' => "There is something for everyone. Have a look around.",
+    'photo' => get_template_directory_uri() . '/images/ocean.jpg',
 ]);?>
 <div class="container container--narrow page-section">
     <ul class="link-list min-list">

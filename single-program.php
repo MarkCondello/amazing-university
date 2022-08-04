@@ -23,7 +23,7 @@ $relatedProfessors = new WP_Query(array(
   'order' => 'ASC',
   'meta_query' => array( //filter by related programs which have the ID 
     array(
-      'key' => 'related_programs', //ACF field we setup in events
+      'key' => 'related_program', //ACF field we setup in events
       'compare' => 'LIKE',
       'value' => '"' . get_the_ID()  . '"', // serialize the array values to a string
     )
@@ -37,9 +37,9 @@ if ($relatedProfessors->have_posts()): ?>
   while($relatedProfessors->have_posts()):
     $relatedProfessors->the_post(); ?>
     <li class="professor-card__list-item">
-      <a class="professor-card" href="<?php the_permalink();?>" >
+      <a class="professor-card" href="<?php the_permalink();?>">
         <img class="professor-card__image" src="<?php the_post_thumbnail_url('professorLandscape'); ?>" />
-        <span class="professor-card__name"><?php the_title(); ?></span>        
+        <span class="professor-card__name"><?php the_title(); ?></span>
       </a>  
     </li>
   <?php

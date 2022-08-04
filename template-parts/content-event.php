@@ -1,7 +1,6 @@
 <div class="event-summary">
     <a class="event-summary__date t-center" href="<?php the_permalink(); ?>">
-        <?php
-        // must be Year Month Day YYYYMMDD in ACF return format to grab options using the DateTime PHP object
+<?php   // must be Year Month Day YYYYMMDD in ACF return format to grab options using the DateTime PHP object
         $eventDate = new DateTime(get_field('event_date')); ?>
         <span class="event-summary__month"><?= $eventDate->format('M') ?></span>
         <span class="event-summary__day"><?= $eventDate->format('d') ?></span>

@@ -20,8 +20,7 @@
         'order_by' => 'meta_value_num',
         'order_by' => 'date',
         'order' => 'ASC',
-        //only show posts in the future, not the past
-        'meta_query' => array(
+        'meta_query' => array( //only show posts in the future, not the past
           array(
             'key' => 'event_date',
             'compare' => '>=',
@@ -42,8 +41,7 @@
   <div class="full-width-split__two">
     <div class="full-width-split__inner">
       <h2 class="headline headline--small-plus t-center">From Our Blogs</h2>
-    <?php 
-    //codex WP_Query https://codex.wordpress.org/Class_Reference/WP_Query
+<?php //codex WP_Query https://codex.wordpress.org/Class_Reference/WP_Query
     $homepagePosts = new WP_Query([
       'posts_per_page' => 2,
       // 'category_name' => 'uncategorised',

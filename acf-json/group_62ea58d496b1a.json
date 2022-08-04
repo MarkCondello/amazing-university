@@ -35,6 +35,13 @@
                 "operator": "==",
                 "value": "event"
             }
+        ],
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "professor"
+            }
         ]
     ],
     "menu_order": 0,
@@ -46,5 +53,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1659565381
+    "modified": 1659600302
 }

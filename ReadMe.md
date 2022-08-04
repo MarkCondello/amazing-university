@@ -1,4 +1,8 @@
 ## Setup
+To build assets using the latest version of Node, the following script needs to be included in the build:
+```
+"start": "cross-env NODE_OPTIONS=--openssl-legacy-provider wp-scripts start"
+```
 
 ## Workflow
 

@@ -51,11 +51,10 @@ function pageBanner($args = NULL){
     if (!isset($args['title'])):
         $args['title'] = get_the_title();
     endif;
-
-    if (!isset($args['subtitle'])) :
-        $args['subtitle'] = get_field("page_banner_title");
+    if (!isset($args['subtitle'])):
+        $args['subtitle'] = get_field("page_banner_subtitle");
     endif;
-    if (!isset($args['photo'])) :
+    if (!isset($args['photo']) && !is_archive() && !is_home()) :
         if (get_field("page_banner_background_image")) :
             $args['photo'] = get_field("page_banner_background_image")['sizes']['pageBanner'];
         else:
@@ -63,12 +62,11 @@ function pageBanner($args = NULL){
         endif;
     endif; ?>
     <div class="page-banner">
-        <div class="page-banner__bg-image" style="background-image: url(<?php echo $args['photo']; ?>">
-         </div>
+        <div class="page-banner__bg-image" style="background-image: url(<?= $args['photo'] ?>"></div>
         <div class="page-banner__content container container--narrow">
-            <h1 class="page-banner__title"><?php echo $args['title'] ?></h1>
+            <h1 class="page-banner__title"><?= $args['title'] ?></h1>
             <div class="page-banner__intro">
-                <p><?php echo $args['subtitle']; ?></p>
+                <p><?= $args['subtitle'] ?></p>
             </div>
         </div>
     </div>
