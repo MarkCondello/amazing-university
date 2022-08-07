@@ -74,11 +74,16 @@ function pageBanner($args = NULL){
 }
 
 function university_files() {
+    
+    wp_enqueue_script('jquery', get_theme_file_uri('/node_modules/jquery/dist/jquery.js'), null, '1.0', true );
+    wp_enqueue_script('owl_carousel_scripts', get_theme_file_uri('/node_modules/owl.carousel/dist/owl.carousel.min.js'), null, '1.0', true );
     wp_enqueue_script('google_maps_scripts', '//maps.googleapis.com/maps/api/js?key=AIzaSyDGuO_eDH5fSneJ9dv2U9r3pdUdY_IBoBA', null, '1.0', true );
     wp_enqueue_script('university_main_scripts', get_theme_file_uri('/build/index.js'), null, microtime(), true );
     // wp_enqueue_script('university_main_scripts', get_theme_file_uri('/js/scripts-bundled.js'), null, microtime(), true );
     wp_enqueue_style('custom_google_fonts', 'https://fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,400i,700,700i|Roboto:100,300,400,400i,700,700i');
     wp_enqueue_style('font_awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css' );
+    wp_enqueue_style('owl_carouselstyles',  get_theme_file_uri("/node_modules/owl.carousel/dist/assets/owl.carousel.min.css"), NULL, microtime() );
+
     wp_enqueue_style('university_reset_styles',  get_theme_file_uri('/build/index.css'), NULL, microtime() );
     wp_enqueue_style('university_main_styles',  get_theme_file_uri('/build/style-index.css'), NULL, microtime() );
     // wp_enqueue_style('university_main_styles', get_stylesheet_uri(), NULL, microtime() );
@@ -113,8 +118,7 @@ function university_adjust_queries($query){
     if (!is_admin() && is_post_type_archive('campus') && $query->is_main_query()) {
         $query->set('posts_per_page', -1);
     }
-    //custom query for the events page posts to display only future events
-    if (!is_admin() && is_post_type_archive('event') && $query->is_main_query()) {
+    if (!is_admin() && is_post_type_archive('event') && $query->is_main_query()) { //custom query for the events page posts to display only future events
         $today = date('Ymd');
         $query->set('meta_key', 'event_date'); //ACF field date value
         $query->set('order_by','meta_value_num');
@@ -136,7 +140,7 @@ function universityMapKey($api) {
 }
 add_filter('acf/fields/google_map/api', 'universityMapKey');
 
-//redirect to home page instead of admin if subscriber 
+//redirect to home page instead of admin if users role is subscriber.
 function redirect_subs_to_home(){
     $currentUser = wp_get_current_user();
     if(count($currentUser->roles) == 1 && $currentUser->roles[0] == "subscriber"){
@@ -171,8 +175,6 @@ function ourLoginTitle(){
     return get_bloginfo("name");
 }
 add_filter("login_headertitle", "ourLoginTitle");
-
-
 
 // //this code reside in the mu-plugin directory
 // function university_post_types(){

@@ -1,17 +1,17 @@
-// 3rd party packages from NPM
-import $ from 'jquery/dist/jquery';
-// import slick from 'slick-carousel';
-
 import "../scss/style.scss"
 
 // Our modules / classes
-import MobileMenu from './modules/MobileMenu';
-// import HeroSlider from './modules/HeroSlider';
-import GoogleMap from './modules/GoogleMap';
-import Search from './modules/Search';
+// import HeroSlider from './modules/HeroSlider'
+import MobileMenu from './modules/MobileMenu'
+import GoogleMap from './modules/GoogleMap'
+import Search from './modules/Search'
 
+
+const mobileMenu = new MobileMenu(),
+  // heroSlider = new HeroSlider(),
+googleMap = new GoogleMap(),
+siteSearch = new Search()
 // // Instantiate a new object using our modules/classes
-var mobileMenu = new MobileMenu();
-// var heroSlider = new HeroSlider();
-var googleMap = new GoogleMap();
-var siteSearch =  new Search();
+jQuery(document).ready(function($){
+  $('.hero-slider').owlCarousel({ items: 1, autoplay: true, });
+});

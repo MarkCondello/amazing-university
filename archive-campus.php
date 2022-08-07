@@ -1,4 +1,3 @@
-<!-- campus posts list template with google map-->
 <?php get_header();
 pageBanner([
   'title' => 'Our Campuses',

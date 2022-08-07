@@ -1,4 +1,4 @@
-import $ from 'jquery/dist/jquery';
+$ = jQuery
 
 class MobileMenu {
   constructor() {
