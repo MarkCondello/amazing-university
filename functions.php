@@ -1,4 +1,6 @@
 <?php
+require get_theme_file_path('/includes/search-route.php');
+
 //custom REST API properties
 function uni_custom_rest(){
     register_rest_field('post', 'authorName', array(
@@ -16,10 +18,18 @@ function uni_custom_rest(){
             return get_field('page_banner_title');
         }
     ));
+    register_rest_field('event', 'authorName', array(
+        'get_callback' => function(){
+            return get_the_author();
+        }
+    ));
+    register_rest_field('page', 'authorName', array(
+        'get_callback' => function(){
+            return get_the_author();
+        }
+    ));
 }
-
 add_action('rest_api_init', 'uni_custom_rest');
-
 
 //my attempt at the banner function, which works
 function page_banner(  $pageBannerImg, $banner_title) {

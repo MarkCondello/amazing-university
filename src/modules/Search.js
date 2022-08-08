@@ -8,7 +8,7 @@ class Search {
         this.searchOverlay = $('.search-overlay')
         //add the events to the class when the page is loaded
         this.typingTimer
-        this.previousValue;
+        this.previousValue
         this.isOverlayOpen = false
         this.isSpinnerVisible = false
         this.searchField = $('#search-term')
@@ -43,17 +43,15 @@ class Search {
         }
     }
     typingLogic(e){
-        if (this.searchField.val() != this.previousValue) { //do not allow for multiple setTimeouts
-            clearTimeout(this.typingTimer)
+        if (this.searchField.val() != this.previousValue) {
+            clearTimeout(this.typingTimer) //do not allow for multiple setTimeouts
             //if there is a new search field value display the spinner and set the timeout for displaying results
-            if (this.searchField.val()){ //do not reload the spinner if it is already visible
-                if (!this.isSpinnerVisible){
+            if (this.searchField.val()){
+                if (!this.isSpinnerVisible){ //do not reload the spinner if it is already visible
                     this.searchResults.html('<div class="spinner-loader"></div>')
                     this.isSpinnerVisible = true
                 } 
-                this.typingTimer = setTimeout(()=>{
-                    this.getResults(); console.log('reached getResultsin timeout')
-                }, 750)
+                this.typingTimer = setTimeout(() => { this.getResults() }, 750)
             } else {
                 this.searchResults.html('')
                 this.isSpinnerVisible = false
@@ -72,13 +70,13 @@ class Search {
         )
         .then((posts, pages, programs, campuses, professors, event) => {
             this.isSpinnerVisible = false
-
+            const authoredItems = ['post', 'event', 'page']
             const combinedResults = posts[0].concat(pages[0].concat(programs[0]).concat(campuses[0]).concat(professors[0]).concat(event[0]))
             // console.log(combinedResults)
             this.searchResults.html(`<h2 class="search-overlay__section-title">General Information</h2>
             ${combinedResults.length ? '<ul class="link-list min-list">' : '<p>no results found</p>'}
             ${combinedResults.map(item => `<li><a href="${item.link}">${item.title.rendered}</a>
-            ${item.type == 'post' ? `by ${item.authorName}` : '' }
+            ${authoredItems.includes(item.type) ? `by ${item.authorName}` : '' }
             </li>`).join('')}
             ${combinedResults.length ? ' </ul>' : '' }`)
         }, () => {

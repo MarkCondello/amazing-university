@@ -218,19 +218,18 @@ class Search {
 
   typingLogic(e) {
     if (this.searchField.val() != this.previousValue) {
-      //do not allow for multiple setTimeouts
-      clearTimeout(this.typingTimer); //if there is a new search field value display the spinner and set the timeout for displaying results
+      clearTimeout(this.typingTimer); //do not allow for multiple setTimeouts
+      //if there is a new search field value display the spinner and set the timeout for displaying results
 
       if (this.searchField.val()) {
-        //do not reload the spinner if it is already visible
         if (!this.isSpinnerVisible) {
+          //do not reload the spinner if it is already visible
           this.searchResults.html('<div class="spinner-loader"></div>');
           this.isSpinnerVisible = true;
         }
 
         this.typingTimer = setTimeout(() => {
           this.getResults();
-          console.log('reached getResultsin timeout');
         }, 750);
       } else {
         this.searchResults.html('');
@@ -244,12 +243,13 @@ class Search {
   getResults() {
     $.when($.getJSON(uniData.root_url + '/wp-json/wp/v2/posts?search=' + this.searchField.val()), $.getJSON(uniData.root_url + '/wp-json/wp/v2/pages?search=' + this.searchField.val()), $.getJSON(uniData.root_url + '/wp-json/wp/v2/program?search=' + this.searchField.val()), $.getJSON(uniData.root_url + '/wp-json/wp/v2/campus?search=' + this.searchField.val()), $.getJSON(uniData.root_url + '/wp-json/wp/v2/professor?search=' + this.searchField.val()), $.getJSON(uniData.root_url + '/wp-json/wp/v2/event?search=' + this.searchField.val())).then((posts, pages, programs, campuses, professors, event) => {
       this.isSpinnerVisible = false;
+      const authoredItems = ['post', 'event', 'page'];
       const combinedResults = posts[0].concat(pages[0].concat(programs[0]).concat(campuses[0]).concat(professors[0]).concat(event[0])); // console.log(combinedResults)
 
       this.searchResults.html(`<h2 class="search-overlay__section-title">General Information</h2>
             ${combinedResults.length ? '<ul class="link-list min-list">' : '<p>no results found</p>'}
             ${combinedResults.map(item => `<li><a href="${item.link}">${item.title.rendered}</a>
-            ${item.type == 'post' ? `by ${item.authorName}` : ''}
+            ${authoredItems.includes(item.type) ? `by ${item.authorName}` : ''}
             </li>`).join('')}
             ${combinedResults.length ? ' </ul>' : ''}`);
     }, () => {
