@@ -60,34 +60,65 @@ class Search {
         this.previousValue = this.searchField.val()
     }
     getResults(){
-        $.when(
-            $.getJSON(uniData.root_url + '/wp-json/wp/v2/posts?search=' + this.searchField.val()),
-            $.getJSON(uniData.root_url + '/wp-json/wp/v2/pages?search=' + this.searchField.val()),
-            $.getJSON(uniData.root_url + '/wp-json/wp/v2/program?search=' + this.searchField.val()),
-            $.getJSON(uniData.root_url + '/wp-json/wp/v2/campus?search=' + this.searchField.val()),
-            $.getJSON(uniData.root_url + '/wp-json/wp/v2/professor?search=' + this.searchField.val()),
-            $.getJSON(uniData.root_url + '/wp-json/wp/v2/event?search=' + this.searchField.val()),
-        )
-        .then((posts, pages, programs, campuses, professors, event) => {
+        console.log(`${uniData.root_url}/wp-json/university/v1/search?term=${this.searchField.val()}`)
+        $.getJSON(`${uniData.root_url}/wp-json/university/v1/search?term=${this.searchField.val()}`, (results) => {
+            this.searchResults.html(`
+                <div class="row">
+                    <div class="one-third">
+                        <h2 class="search-overlay__section-title">General Information</h2>
+                        ${results.generalInfo.length ? '<ul class="link-list min-list">' : '<p>No General Info matches that search.</p>'}
+                        ${results.generalInfo.map(item => `<li><a href="${item.link}">${item.title}</a>
+                        ${item.author_name ? `by ${item.author_name}` : ''}
+                        </li>`).join('')}
+                        ${results.generalInfo.length ? '</ul>' : ''}
+                    </div>
+                    <div class="one-third">
+                        <h2 class="search-overlay__section-title">Programs</h2>
+                        ${results.programs.length ? '<ul class="link-list min-list">' : `<p>No Programs match that search. <a href="${uniData.root_url}/programs">View all Programs.</a></p>`}
+                        ${results.programs.map(item => `<li><a href="${item.link}">${item.title}</a>
+                        ${item.author_name ? `by ${item.author_name}` : '' }
+                        </li>`).join('')}
+                        <h2 class="search-overlay__section-title">Professors</h2>
+                        ${results.professors.length ? '<ul class="professor-cards">' : `<p>No Professors match that search.</p>`}
+                        ${results.professors.map(item => `<li class="professor-card__list-item"><a class="professor-card" href="${item.link}">
+                                <img class="professor-card__image" src="${item.thumbnail}" />
+                                <span class="professor-card__name">${item.title}</span>
+                            ${item.author_name ? ` <span>by ${item.author_name}</span>` : ''}
+                            </a>
+                            </li>`).join('')}
+                        ${results.professors.length ? '</ul>' : ''}
+                    </div>
+                    <div class="one-third">
+                        <h2 class="search-overlay__section-title">Campuses</h2>
+                        ${results.campuses.length ? '<ul class="link-list min-list">' :  `<p>No Campuses match that search. <a href="${uniData.root_url}/campuses">View all Campuses.</a></p>`}
+                        ${results.campuses.map(item => `<li><a href="${item.link}">${item.title}</a>
+                        ${item.author_name ? `by ${item.author_name}` : '' }
+                        </li>`).join('')}
+                        ${results.campuses.length ? '</ul>' : ''}
+                        <h2 class="search-overlay__section-title">Events</h2>
+                        ${results.events.length ? '' : `<p>No Events match that search. <a href="${uniData.root_url}/events">View all Events.</a></p>`}
+                        ${results.events.map(event => `
+                        <div class="event-summary">
+                            <a class="event-summary__date t-center" href="${event.link}">
+                                <span class="event-summary__month">${event.event_month}</span>
+                                <span class="event-summary__day">${event.event_day}</span>
+                            </a>
+                            <div class="event-summary__content">
+                                <h5 class="event-summary__title headline headline--tiny">
+                                    <a href="${event.link}">${event.title}  ${event.author_name ? ` - by ${event.author_name}` : ''}
+                                    </a>
+                                </h5>
+                                <p>
+                                    ${event.intro}
+                                    <a href="${event.link}" class="nu gray">Learn more</a>
+                                </p>
+                            </div>
+                        </div>`).join('')}
+                    </div>
+                </div>
+            `)
             this.isSpinnerVisible = false
-            const authoredItems = ['post', 'event', 'page']
-            const combinedResults = posts[0].concat(pages[0].concat(programs[0]).concat(campuses[0]).concat(professors[0]).concat(event[0]))
-            // console.log(combinedResults)
-            this.searchResults.html(`<h2 class="search-overlay__section-title">General Information</h2>
-            ${combinedResults.length ? '<ul class="link-list min-list">' : '<p>no results found</p>'}
-            ${combinedResults.map(item => `<li><a href="${item.link}">${item.title.rendered}</a>
-            ${authoredItems.includes(item.type) ? `by ${item.authorName}` : '' }
-            </li>`).join('')}
-            ${combinedResults.length ? ' </ul>' : '' }`)
-        }, () => {
-            this.searchResults.html('<p>Unexpected error; please try again.</p>')
-        });
-        /* //relative url using wp_localize_script values added in functions.php
-        $.getJSON(uniData.root_url + '/wp-json/wp/v2/posts?search=' + this.searchField.val(), (posts) => {//bind function to the class using es6 arrow function
-           // console.log(posts.length, posts);
-           $.getJSON(uniData.root_url + '/wp-json/wp/v2/pages?search=' + this.searchField.val(), pages =>{
-           });
-        }); */
+        })
     }
     addSearchHTML(){
         $('body').append(`
