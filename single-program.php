@@ -16,19 +16,19 @@ while(have_posts()):
     <?= the_content(); ?>
   </div>
 <?php
-$relatedProfessors = new WP_Query(array(
+$relatedProfessors = new WP_Query([
   'posts_per_page' => -1,
   'post_type' => 'professor',
   'order_by' => 'title',
   'order' => 'ASC',
-  'meta_query' => array( //filter by related programs which have the ID 
-    array(
+  'meta_query' => [ //filter by related programs which have the ID
+    [
       'key' => 'related_program', //ACF field we setup in events
       'compare' => 'LIKE',
       'value' => '"' . get_the_ID()  . '"', // serialize the array values to a string
-    )
-  )
-));
+    ]
+  ]
+]);
 if ($relatedProfessors->have_posts()): ?>
   <hr class="section-break">
   <h2 class="headline headline--medium"><?= get_the_title() ?> Professors</h2>

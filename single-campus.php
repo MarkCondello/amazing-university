@@ -33,7 +33,7 @@ while(have_posts()):
             )
         )
     ));
-    if ($relatedPrograms->have_posts()) :
+    if ($relatedPrograms->have_posts()):
     echo '<hr class="section-break">';
     echo '<h2 class="headline headline--medium">Programs available at this campus</h2>';
     echo '<ul class="min-list link-list">';

@@ -20,7 +20,9 @@ function universitySearchResults ($request) {
     'programs' => [],
     'events' => [],
     'campuses' => [],
-   ];
+    
+    'customQuery' => [], // remove RON
+  ];
   while($query->have_posts()):
     $query->the_post();
     // use a switch instead
@@ -39,6 +41,7 @@ function universitySearchResults ($request) {
         'author_name' => get_the_author(),
         'title' => get_the_title(),
         'link' => get_the_permalink(),
+        'id' => get_the_ID(),
         'thumbnail' => get_the_post_thumbnail_url(get_the_ID(), 'professorLandscape'),
       ];
       $results['professors'][] = $item;
@@ -49,6 +52,7 @@ function universitySearchResults ($request) {
         'author_name' => get_the_author(),
         'title' => get_the_title(),
         'link' => get_the_permalink(),
+        'id' => get_the_ID(),
       ];
       $results['programs'][] = $item;
     }
@@ -65,6 +69,7 @@ function universitySearchResults ($request) {
         'author_name' => get_the_author(),
         'title' => get_the_title(),
         'link' => get_the_permalink(),
+        'id' => get_the_ID(),
         'event_month' => $eventDate->format('M'),
         'event_day' => $eventDate->format('d'),
         'intro' => $intro,
@@ -81,6 +86,43 @@ function universitySearchResults ($request) {
       $results['campuses'][] = $item;
     }
   endwhile;
-  return $results;
+  wp_reset_postdata();
+
+  if ($results['programs']):
+    $relatedProfessorsMetaQuery = [
+      'relation' => 'OR',
+    ];
+    // find related items from postIds from the results['programs'] array above
+    foreach($results['programs'] as $program):
+      $relatedProfessorsMetaQuery[] = [
+        'key' => 'related_program', //ACF field we setup in events
+        'compare' => 'LIKE',
+        // 'value' => 60, // Math Program post
+        'value' => '"' . $program['id'] . '"', // serialize the array values to a string
+      ];
+    endforeach;
+    // $results['customQuery'] = $relatedProfessorsMetaQuery;
+    $relatedProfessors = new WP_Query([
+      'posts_per_page' => -1,
+      'post_type' => 'professor',
+      'order_by' => 'title',
+      'order' => 'ASC',
+      'meta_query' => $relatedProfessorsMetaQuery,
+    ]);
+    while($relatedProfessors->have_posts()):
+      $relatedProfessors->the_post();
+      $item = [
+        'post_type' => get_post_type(),
+        'author_name' => get_the_author(),
+        'title' => get_the_title(),
+        'link' => get_the_permalink(),
+        'thumbnail' => get_the_post_thumbnail_url(get_the_ID(), 'professorLandscape'),
+      ];
+      $results['professors'][] = $item;
+    endwhile;
+    // //remove duplicate items
+    $results['professors'] = array_values(array_unique($results['professors'], SORT_REGULAR));
+  endif;
   
+  return $results;
 }
