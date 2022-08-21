@@ -19,17 +19,10 @@ function universitySearchResults ($request) { // arrays get converted to valid J
     'programs' => [],
     'events' => [],
     'campuses' => [],
-    'customQuery' => [], // remove RON
   ];
   while($query->have_posts()):
     $query->the_post();
-    $item = [
-      'post_type' => get_post_type(),
-      'author_name' => get_the_author(),
-      'title' => get_the_title(),
-      'link' => get_the_permalink(),
-      'id' => get_the_ID(),
-    ];
+    $item = getDefaultDataItems();
     switch(get_post_type()):
       case 'post':
       case 'page':
@@ -41,34 +34,20 @@ function universitySearchResults ($request) { // arrays get converted to valid J
       break;
       case 'program':
         $relatedCampuses = get_field('related_campus');
-        if(count($relatedCampuses)):
+        if (count($relatedCampuses)):
           foreach($relatedCampuses as $campus):
-            $results['campuses'][] = [
-              'post_type' => get_post_type($campus),
-              'author_name' => get_the_author($campus),
-              'title' => get_the_title($campus),
-              'link' => get_the_permalink($campus),
-              'id' => $campus->ID,
-            ];
+            $item = getDefaultDataItems($campus);
+            $item['id'] = $campus->ID;
+            $results['campuses'][] = $item;
           endforeach;
         endif;
-
         $results['programs'][] = $item;
       break;
       case 'campus':
         $results['campuses'][] = $item;
       break;
       case 'event':
-        $eventDate = new DateTime(get_field(get_the_ID(), 'event_date'));
-        $intro = null;
-        if (has_excerpt()){
-          $intro = get_the_excerpt();
-        } else {
-          $intro = wp_trim_words(get_the_content(), 18);
-        }
-        $item['event_month'] = $eventDate->format('M');
-        $item['event_day'] = $eventDate->format('d');
-        $item['intro'] = $intro;
+        $item = array_merge($item, getEventDetails());
         $results['events'][] = $item;
       break;
     endswitch;
@@ -87,7 +66,6 @@ function universitySearchResults ($request) { // arrays get converted to valid J
         'value' => '"' . $program['id'] . '"', // serialize the array values to a string
       ];
     endforeach;
-    // $results['customQuery'] = $relatedProfessorsOrEventsMetaQuery;
     $relatedProfessorsOrEvents = new WP_Query([
       'posts_per_page' => -1,
       'post_type' => ['professor', 'event'],
@@ -97,30 +75,14 @@ function universitySearchResults ($request) { // arrays get converted to valid J
     ]);
     while($relatedProfessorsOrEvents->have_posts()):
       $relatedProfessorsOrEvents->the_post();
-      $item = [
-        'post_type' => get_post_type(),
-        'author_name' => get_the_author(),
-        'title' => get_the_title(),
-        'link' => get_the_permalink(),
-        'id' => get_the_ID(),
-      ];
+      $item = getDefaultDataItems();
       switch(get_post_type()):
         case 'professor':
           $item['thumbnail'] = get_the_post_thumbnail_url(get_the_ID(), 'professorLandscape');
           $results['professors'][] = $item;
           break;
         case 'event':
-          // NOT DRY
-          $eventDate = new DateTime(get_field(get_the_ID(), 'event_date'));
-          $intro = null;
-          if (has_excerpt()){
-            $intro = get_the_excerpt();
-          } else {
-            $intro = wp_trim_words(get_the_content(), 18);
-          }
-          $item['event_month'] = $eventDate->format('M');
-          $item['event_day'] = $eventDate->format('d');
-          $item['intro'] = $intro;
+          $item = array_merge($item, getEventDetails());
           $results['events'][] = $item;
           break;
         endswitch;
@@ -130,4 +92,27 @@ function universitySearchResults ($request) { // arrays get converted to valid J
   endif;
   $results['campuses'] = array_values(array_unique($results['campuses'], SORT_REGULAR)); //remove duplicate items
   return $results;
+}
+
+function getDefaultDataItems($postObj = null) {
+  return [
+    'post_type' => get_post_type($postObj),
+    'author_name' => get_the_author($postObj),
+    'title' => get_the_title($postObj),
+    'link' => get_the_permalink($postObj),
+    'id' => get_the_ID($postObj),
+  ];
+}
+
+function getEventDetails() {
+  $eventDate = new DateTime(get_field(get_the_ID(), 'event_date'));
+  $intro = wp_trim_words(get_the_content(), 18);
+  if (has_excerpt()){
+    $intro = get_the_excerpt();
+  } 
+  return [
+    'event_month' => $eventDate->format('M'),
+    'event_day' => $eventDate->format('d'),
+    'intro' => $intro,
+  ];
 }
