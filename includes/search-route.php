@@ -8,8 +8,7 @@ function universityRegisterSearch() {
 }
 add_action('rest_api_init', 'universityRegisterSearch');
 
-function universitySearchResults ($request) {
-  // arrays get converted to valid JSON
+function universitySearchResults ($request) { // arrays get converted to valid JSON
   $query = new WP_Query([
     'post_type' => ['post', 'page', 'professor', 'program', 'campus', 'event'],
     's' => filter_var($request['term'], FILTER_SANITIZE_URL), // sanitize the param 'term'
@@ -20,109 +19,115 @@ function universitySearchResults ($request) {
     'programs' => [],
     'events' => [],
     'campuses' => [],
-    
     'customQuery' => [], // remove RON
   ];
   while($query->have_posts()):
     $query->the_post();
-    // use a switch instead
-    if (get_post_type() == 'post' || get_post_type() == 'page') {
-      $item = [
-        'post_type' => get_post_type(),
-        'author_name' => get_the_author(),
-        'title' => get_the_title(),
-        'link' => get_the_permalink(),
-      ];
-      $results['generalInfo'][] = $item;
-    }
-    if (get_post_type() == 'professor') {
-      $item = [
-        'post_type' => get_post_type(),
-        'author_name' => get_the_author(),
-        'title' => get_the_title(),
-        'link' => get_the_permalink(),
-        'id' => get_the_ID(),
-        'thumbnail' => get_the_post_thumbnail_url(get_the_ID(), 'professorLandscape'),
-      ];
-      $results['professors'][] = $item;
-    }
-    if (get_post_type() == 'program') {
-      $item = [
-        'post_type' => get_post_type(),
-        'author_name' => get_the_author(),
-        'title' => get_the_title(),
-        'link' => get_the_permalink(),
-        'id' => get_the_ID(),
-      ];
-      $results['programs'][] = $item;
-    }
-    if (get_post_type() == 'event') {
-      $eventDate = new DateTime(get_field(get_the_ID(), 'event_date'));
-      $intro;
-      if (has_excerpt()){
-        $intro = get_the_excerpt();
-      } else {
-        $intro = wp_trim_words(get_the_content(), 18);
-      }
-      $item = [
-        'post_type' => get_post_type(),
-        'author_name' => get_the_author(),
-        'title' => get_the_title(),
-        'link' => get_the_permalink(),
-        'id' => get_the_ID(),
-        'event_month' => $eventDate->format('M'),
-        'event_day' => $eventDate->format('d'),
-        'intro' => $intro,
-      ];
-      $results['events'][] = $item;
-    }
-    if (get_post_type() == 'campus') {
-      $item = [
-        'post_type' => get_post_type(),
-        'author_name' => get_the_author(),
-        'title' => get_the_title(),
-        'link' => get_the_permalink(),
-      ];
-      $results['campuses'][] = $item;
-    }
+    $item = [
+      'post_type' => get_post_type(),
+      'author_name' => get_the_author(),
+      'title' => get_the_title(),
+      'link' => get_the_permalink(),
+      'id' => get_the_ID(),
+    ];
+    switch(get_post_type()):
+      case 'post':
+      case 'page':
+        $results['generalInfo'][] = $item;
+      break;
+      case 'professor':
+        $item['thumbnail'] = get_the_post_thumbnail_url(get_the_ID(), 'professorLandscape');
+        $results['professors'][] = $item;
+      break;
+      case 'program':
+        $relatedCampuses = get_field('related_campus');
+        if(count($relatedCampuses)):
+          foreach($relatedCampuses as $campus):
+            $results['campuses'][] = [
+              'post_type' => get_post_type($campus),
+              'author_name' => get_the_author($campus),
+              'title' => get_the_title($campus),
+              'link' => get_the_permalink($campus),
+              'id' => $campus->ID,
+            ];
+          endforeach;
+        endif;
+
+        $results['programs'][] = $item;
+      break;
+      case 'campus':
+        $results['campuses'][] = $item;
+      break;
+      case 'event':
+        $eventDate = new DateTime(get_field(get_the_ID(), 'event_date'));
+        $intro = null;
+        if (has_excerpt()){
+          $intro = get_the_excerpt();
+        } else {
+          $intro = wp_trim_words(get_the_content(), 18);
+        }
+        $item['event_month'] = $eventDate->format('M');
+        $item['event_day'] = $eventDate->format('d');
+        $item['intro'] = $intro;
+        $results['events'][] = $item;
+      break;
+    endswitch;
   endwhile;
   wp_reset_postdata();
 
   if ($results['programs']):
-    $relatedProfessorsMetaQuery = [
+    $relatedProfessorsOrEventsMetaQuery = [
       'relation' => 'OR',
     ];
     // find related items from postIds from the results['programs'] array above
     foreach($results['programs'] as $program):
-      $relatedProfessorsMetaQuery[] = [
+      $relatedProfessorsOrEventsMetaQuery[] = [
         'key' => 'related_program', //ACF field we setup in events
         'compare' => 'LIKE',
-        // 'value' => 60, // Math Program post
         'value' => '"' . $program['id'] . '"', // serialize the array values to a string
       ];
     endforeach;
-    // $results['customQuery'] = $relatedProfessorsMetaQuery;
-    $relatedProfessors = new WP_Query([
+    // $results['customQuery'] = $relatedProfessorsOrEventsMetaQuery;
+    $relatedProfessorsOrEvents = new WP_Query([
       'posts_per_page' => -1,
-      'post_type' => 'professor',
+      'post_type' => ['professor', 'event'],
       'order_by' => 'title',
       'order' => 'ASC',
-      'meta_query' => $relatedProfessorsMetaQuery,
+      'meta_query' => $relatedProfessorsOrEventsMetaQuery,
     ]);
-    while($relatedProfessors->have_posts()):
-      $relatedProfessors->the_post();
+    while($relatedProfessorsOrEvents->have_posts()):
+      $relatedProfessorsOrEvents->the_post();
       $item = [
         'post_type' => get_post_type(),
         'author_name' => get_the_author(),
         'title' => get_the_title(),
         'link' => get_the_permalink(),
-        'thumbnail' => get_the_post_thumbnail_url(get_the_ID(), 'professorLandscape'),
+        'id' => get_the_ID(),
       ];
-      $results['professors'][] = $item;
+      switch(get_post_type()):
+        case 'professor':
+          $item['thumbnail'] = get_the_post_thumbnail_url(get_the_ID(), 'professorLandscape');
+          $results['professors'][] = $item;
+          break;
+        case 'event':
+          // NOT DRY
+          $eventDate = new DateTime(get_field(get_the_ID(), 'event_date'));
+          $intro = null;
+          if (has_excerpt()){
+            $intro = get_the_excerpt();
+          } else {
+            $intro = wp_trim_words(get_the_content(), 18);
+          }
+          $item['event_month'] = $eventDate->format('M');
+          $item['event_day'] = $eventDate->format('d');
+          $item['intro'] = $intro;
+          $results['events'][] = $item;
+          break;
+        endswitch;
     endwhile;
-    // //remove duplicate items
-    $results['professors'] = array_values(array_unique($results['professors'], SORT_REGULAR));
+    $results['professors'] = array_values(array_unique($results['professors'], SORT_REGULAR)); //remove duplicate items
+    $results['events'] = array_values(array_unique($results['events'], SORT_REGULAR)); //remove duplicate items
   endif;
-  
+  $results['campuses'] = array_values(array_unique($results['campuses'], SORT_REGULAR)); //remove duplicate items
   return $results;
 }
