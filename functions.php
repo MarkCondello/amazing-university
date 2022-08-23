@@ -94,8 +94,8 @@ function university_files() {
     wp_enqueue_style('font_awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css' );
     wp_enqueue_style('owl_carouselstyles',  get_theme_file_uri("/node_modules/owl.carousel/dist/assets/owl.carousel.min.css"), NULL, microtime() );
 
-    wp_enqueue_style('university_reset_styles',  get_theme_file_uri('/build/index.css'), NULL, microtime() );
-    wp_enqueue_style('university_main_styles',  get_theme_file_uri('/build/style-index.css'), NULL, microtime() );
+    wp_enqueue_style('university_reset_styles', get_theme_file_uri('/build/index.css'), NULL, microtime() );
+    wp_enqueue_style('university_main_styles', get_theme_file_uri('/build/style-index.css'), NULL, microtime() );
     // wp_enqueue_style('university_main_styles', get_stylesheet_uri(), NULL, microtime() );
     //wordpress method for including markup in the dom related to the server which is extensible so we can add whatever properties we want in the assoicative array
     wp_localize_script('university_main_scripts', 'uniData', array(
@@ -160,12 +160,11 @@ function redirect_subs_to_home(){
 }
 add_action('admin_init', 'redirect_subs_to_home');
 
-//remove to topbar admin if subscriber is logged
-function remove_topbar(){
+function remove_topbar(){ //remove to topbar admin if subscriber is logged
     $currentUser = wp_get_current_user();
     if(count($currentUser->roles) == 1 && $currentUser->roles[0] == "subscriber"){
         show_admin_bar(false);
-     }
+    }
 }
 add_action('wp_loaded', 'remove_topbar');
 
@@ -174,17 +173,18 @@ function ourHeaderUrl(){
 }
 add_filter("login_headerurl", "ourHeaderUrl");
 
-function ourLoginCss(){
-    wp_enqueue_style('university_main_styles', get_stylesheet_uri(), NULL, microtime() );
+function ourLoginCSS(){
     wp_enqueue_style('custom_google_fonts', 'https://fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,400i,700,700i|Roboto:100,300,400,400i,700,700i');
-
+    wp_enqueue_style('font_awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
+    wp_enqueue_style('university_reset_styles', get_theme_file_uri('/build/index.css'), NULL, microtime() );
+    wp_enqueue_style('university_main_styles', get_theme_file_uri('/build/style-index.css'), NULL, microtime() );
 }
-add_action("login_enqueue_scripts", "ourLoginCss");
+add_action("login_enqueue_scripts", "ourLoginCSS");
 
 function ourLoginTitle(){
     return get_bloginfo("name");
 }
-add_filter("login_headertitle", "ourLoginTitle");
+add_filter("login_headertext", "ourLoginTitle");
 
 // //this code reside in the mu-plugin directory
 // function university_post_types(){
