@@ -98,11 +98,12 @@ function university_files() {
     wp_enqueue_style('university_main_styles', get_theme_file_uri('/build/style-index.css'), NULL, microtime() );
     // wp_enqueue_style('university_main_styles', get_stylesheet_uri(), NULL, microtime() );
     //wordpress method for including markup in the dom related to the server which is extensible so we can add whatever properties we want in the assoicative array
-    wp_localize_script('university_main_scripts', 'uniData', array(
-        'root_url' => get_site_url(),
-        'test' =>  'abc',
-        'foo' => 'barr'
-        )
+    wp_localize_script('university_main_scripts', 'uniData', [
+            'root_url' => get_site_url(),
+            'test' =>  'abc',
+            'foo' => 'barr',
+            'nonce' => wp_create_nonce('wp_rest'),
+        ]
     );
 }
 add_action('wp_enqueue_scripts', 'university_files');
