@@ -24,6 +24,9 @@
 
 .edit-note,
 .delete-note {
+  i {
+    pointer-events: none;
+  }
   @media (min-width: 635px) {
     position: relative;
     top: -12px;

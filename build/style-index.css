@@ -608,6 +608,10 @@ body.login {
   background-color: #dd3f21;
 }
 
+.edit-note i,
+.delete-note i {
+  pointer-events: none;
+}
 @media (min-width: 635px) {
   .edit-note,
 .delete-note {
