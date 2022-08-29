@@ -14,8 +14,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_GoogleMap__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/GoogleMap */ "./src/modules/GoogleMap.js");
 /* harmony import */ var _modules_Search__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/Search */ "./src/modules/Search.js");
 /* harmony import */ var _modules_MyNotes__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/MyNotes */ "./src/modules/MyNotes.js");
+/* harmony import */ var _modules_Likes__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/Likes */ "./src/modules/Likes.js");
  // Our modules / classes
 // import HeroSlider from './modules/HeroSlider'
+
 
 
 
@@ -25,7 +27,8 @@ const mobileMenu = new _modules_MobileMenu__WEBPACK_IMPORTED_MODULE_1__["default
       // heroSlider = new HeroSlider(),
 googleMap = new _modules_GoogleMap__WEBPACK_IMPORTED_MODULE_2__["default"](),
       siteSearch = new _modules_Search__WEBPACK_IMPORTED_MODULE_3__["default"](),
-      myNotes = new _modules_MyNotes__WEBPACK_IMPORTED_MODULE_4__["default"](); // // Instantiate a new object using our modules/classes
+      myNotes = new _modules_MyNotes__WEBPACK_IMPORTED_MODULE_4__["default"](),
+      likes = new _modules_Likes__WEBPACK_IMPORTED_MODULE_5__["default"](); // // Instantiate a new object using our modules/classes
 
 jQuery(document).ready(function ($) {
   $('.hero-slider').owlCarousel({
@@ -115,6 +118,78 @@ class GMap {
 
 /***/ }),
 
+/***/ "./src/modules/Likes.js":
+/*!******************************!*\
+  !*** ./src/modules/Likes.js ***!
+  \******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "jquery");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
+
+
+class Likes {
+  constructor() {
+    this.events();
+  }
+
+  events() {
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()('.like-box').on('click', ev => this.ourClickDispatcher(ev));
+  }
+
+  ourClickDispatcher(ev) {
+    const $likeBox = jquery__WEBPACK_IMPORTED_MODULE_0___default()(ev.target).closest('.like-box');
+    console.log('dispatcher..', $likeBox, $likeBox.data('exists'));
+
+    if ($likeBox.data('exists') === 'yes') {
+      this.deleteLike();
+    } else {
+      this.createLike();
+    }
+  }
+
+  createLike() {
+    jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
+      beforeSend: xhr => {
+        xhr.setRequestHeader('X-WP-Nonce', uniData.nonce); //Number used once
+      },
+      url: `${uniData.root_url}/wp-json/university/v1/add-like`,
+      type: 'POST',
+      success: response => {
+        console.log('reached createLike', response);
+      },
+      error: response => {
+        console.log('Unsuccessful: ', response);
+      }
+    });
+  }
+
+  deleteLike() {
+    jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
+      beforeSend: xhr => {
+        xhr.setRequestHeader('X-WP-Nonce', uniData.nonce); //Number used once
+      },
+      url: `${uniData.root_url}/wp-json/university/v1/delete-like`,
+      type: 'DELETE',
+      success: response => {
+        console.log('reached deleteLike:', response);
+      },
+      error: response => {
+        console.log('Unsuccessful: ', response);
+      }
+    });
+  }
+
+}
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Likes);
+
+/***/ }),
+
 /***/ "./src/modules/MobileMenu.js":
 /*!***********************************!*\
   !*** ./src/modules/MobileMenu.js ***!
@@ -167,9 +242,11 @@ class MyNotes {
   }
 
   events() {
-    $('.delete-note').on('click', ev => this.deleteNote($(ev.target)));
-    $('.edit-note').on('click', ev => this.handleEditBtnClick($(ev.target)));
-    $('.update-note').on('click', ev => this.saveNote($(ev.target)));
+    // delegate click event to buttons so dynamically added notes register the click as well
+    $('#my-notes').on('click', '.delete-note', ev => this.deleteNote($(ev.target)));
+    $('#my-notes').on('click', '.edit-note', ev => this.handleEditBtnClick($(ev.target)));
+    $('#my-notes').on('click', '.update-note', ev => this.saveNote($(ev.target)));
+    $('.submit-note').on('click', ev => this.createNote($(ev.target)));
   }
 
   deleteNote($btn) {
@@ -184,6 +261,10 @@ class MyNotes {
       success: response => {
         console.log('Successful: ', response);
         $note.slideUp();
+
+        if (response.notesCount < 5) {
+          $('.note-limit-message').removeClass('active'); // remove limit message if shown and less than 5 notes
+        }
       },
       error: response => {
         console.log('Unsuccessful: ', response);
@@ -237,6 +318,44 @@ class MyNotes {
       },
       error: response => {
         console.log('Unsuccessful: ', response);
+      }
+    });
+  }
+
+  createNote($btn) {
+    const newNote = {
+      'title': $('.new-note-title').val(),
+      'content': $('.new-note-body').val(),
+      'status': 'publish' // posts are set to draft by default
+
+    };
+    $.ajax({
+      beforeSend: xhr => {
+        xhr.setRequestHeader('X-WP-Nonce', uniData.nonce); //Number used once
+      },
+      url: `${uniData.root_url}/wp-json/wp/v2/note/`,
+      type: 'POST',
+      data: newNote,
+      success: response => {
+        console.log('Successful: ', response);
+        $('.new-note-title, .new-note-body').val('');
+        $(`
+          <li data-note-id='${response.id}'>
+            <input value="${response.title.raw}" class="note-title-field" readonly>
+            <span class="edit-note"><i class="fa fa-pencil" aria-hidden="true"></i> Edit</span>
+            <span class="delete-note"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</span>
+            <textarea class="note-body-field" readonly>${response.content.raw}</textarea>
+            <span class="update-note btn btn--blue btn--small"><i class="fa fa-arrow-right" aria-hidden="true"></i> Save</span>
+          </li>
+        `).prependTo('#my-notes').hide().slideDown();
+      },
+      error: response => {
+        console.log('Unsuccessful: ', response);
+        const responseText = response.responseText;
+
+        if (response.responseText === "You have reached your note limit") {
+          $('.note-limit-message').addClass('active');
+        }
       }
     });
   }
@@ -435,6 +554,16 @@ __webpack_require__.r(__webpack_exports__);
 // extracted by mini-css-extract-plugin
 
 
+/***/ }),
+
+/***/ "jquery":
+/*!*************************!*\
+  !*** external "jQuery" ***!
+  \*************************/
+/***/ ((module) => {
+
+module.exports = window["jQuery"];
+
 /***/ })
 
 /******/ 	});
@@ -498,6 +627,18 @@ __webpack_require__.r(__webpack_exports__);
 /******/ 				}
 /******/ 			}
 /******/ 			return result;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
 /******/ 		};
 /******/ 	})();
 /******/ 	

@@ -6,13 +6,15 @@ import MobileMenu from './modules/MobileMenu'
 import GoogleMap from './modules/GoogleMap'
 import Search from './modules/Search'
 import MyNotes from './modules/MyNotes'
+import Likes from './modules/Likes'
 
 
 const mobileMenu = new MobileMenu(),
   // heroSlider = new HeroSlider(),
 googleMap = new GoogleMap(),
 siteSearch = new Search(),
-myNotes = new MyNotes()
+myNotes = new MyNotes(),
+likes = new Likes()
 // // Instantiate a new object using our modules/classes
 jQuery(document).ready(function($){
   $('.hero-slider').owlCarousel({ items: 1, autoplay: true, });

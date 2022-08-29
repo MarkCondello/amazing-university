@@ -1,5 +1,6 @@
 <?php
 require get_theme_file_path('/includes/search-route.php');
+require get_theme_file_path('/includes/like-routes.php');
 
 //custom REST API properties
 function uni_custom_rest(){
@@ -28,6 +29,11 @@ function uni_custom_rest(){
             return get_the_author();
         }
     ));
+    register_rest_field('note', 'notesCount', [
+        'get_callback' => function(){
+            return count_user_posts(get_current_user_id(), 'note');
+        }
+    ]);
 }
 add_action('rest_api_init', 'uni_custom_rest');
 
@@ -186,6 +192,23 @@ function ourLoginTitle(){
     return get_bloginfo("name");
 }
 add_filter("login_headertext", "ourLoginTitle");
+
+//force note posts to be private and strip special characters from being saved to notes content
+function makeNotePrivate($data, $postArray){
+    if ($data['post_type'] == 'note') {
+        // If a post ID is not included with the request, it is a create note
+        if (!$postArray['ID'] && count_user_posts(get_current_user_id(), 'note') > 4) {
+            die('You have reached your note limit');
+        }
+        $data['post_title'] = sanitize_textarea_field($data['post_title']);
+        $data['post_content'] = sanitize_textarea_field($data['post_content']);
+    }
+    if ($data['post_type'] == 'note' && $data['post_status'] != 'trash'){
+        $data['post_status'] = 'private';
+    }
+    return $data;
+}
+add_filter('wp_insert_post_data', 'makeNotePrivate', 10, 2);
 
 // //this code reside in the mu-plugin directory
 // function university_post_types(){
