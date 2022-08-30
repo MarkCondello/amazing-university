@@ -30,7 +30,7 @@ while(have_posts()):
                 ]
             ]);
             $likeExists = $likeExistsQuery->found_posts ? 'yes' : 'no'; ?>
-                <span class="like-box" data-exists="<?= $likeExists ?>">
+                <span class="like-box" data-exists="<?= $likeExists ?>" data-professor-id="<?= the_ID() ?>">
                     <i class="fa fa-heart-o" aria-hidden="true"></i>
                     <i class="fa fa-heart" aria-hidden="true"></i>
                     <span class="like-count"><?= $likeCount->found_posts ?></span>

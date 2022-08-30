@@ -11,9 +11,19 @@ function registerLikeRoutes() {
 }
 add_action('rest_api_init', 'registerLikeRoutes');
 
-function addLike () {
-  return 'Thanks for trying to create a like';
+function addLike($data) {
+  $like = wp_insert_post([
+    'post_type' => 'like',
+    'post_status' => 'publish',
+    'post_title' => 'Create like neo123',
+    'meta_input' => [
+      'liked_professor_id' => sanitize_text_field($data['professorId']),
+    ],
+  ]);
+  if ($like) {
+    return 'Successfully created a like.';
+  }
 }
-function deleteLike () {
+function deleteLike() {
   return 'Thanks for trying to delete a like';
 }

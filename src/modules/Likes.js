@@ -8,23 +8,28 @@ class Likes {
     $('.like-box').on('click', (ev)=> this.ourClickDispatcher(ev))
   }
   ourClickDispatcher(ev) {
-    const $likeBox = $(ev.target).closest('.like-box')
-    console.log('dispatcher..', $likeBox, $likeBox.data('exists'))
+    const $likeBox = $(ev.target).closest('.like-box'),
+    professorId = $likeBox.data('professor-id')
+    console.log('dispatcher..', $likeBox.data('professor-id'))
     if ($likeBox.data('exists') === 'yes') {
-      this.deleteLike()
+      this.deleteLike(professorId)
     } else {
-      this.createLike()
+      this.createLike(professorId)
     }
   }
-  createLike() {
+  createLike(professorId) {
+    console.log('reached createLike: ')
     $.ajax({
       beforeSend: (xhr) => {
         xhr.setRequestHeader('X-WP-Nonce', uniData.nonce) //Number used once
       },
       url: `${uniData.root_url}/wp-json/university/v1/add-like`,
+      data: {
+        professorId,
+      },
       type: 'POST',
       success: (response) => {
-        console.log('reached createLike', response)
+        console.log(response)
 
       },
       error: (response) => {
@@ -32,12 +37,16 @@ class Likes {
       },
     })
   }
-  deleteLike() {
+  deleteLike(professorId) {
+    console.log('reached deleteLike')
     $.ajax({
       beforeSend: (xhr) => {
         xhr.setRequestHeader('X-WP-Nonce', uniData.nonce) //Number used once
       },
       url: `${uniData.root_url}/wp-json/university/v1/delete-like`,
+      data: {
+        professorId,
+      },
       type: 'DELETE',
       success: (response) => {
         console.log('reached deleteLike:', response)
