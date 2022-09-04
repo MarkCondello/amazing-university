@@ -587,7 +587,8 @@ body.login {
 /* My Notes */
 .edit-note,
 .delete-note,
-.submit-note {
+.submit-note,
+.submit-rating {
   font-size: 0.9rem;
   background-color: #eee;
   padding: 8px 16px;
@@ -597,14 +598,15 @@ body.login {
   cursor: pointer;
 }
 
-.submit-note {
+.submit-note,
+.submit-rating {
   color: #fff;
   border: none;
   background-color: #F95738;
   line-height: 1.65;
 }
-
-.submit-note:hover {
+.submit-note:hover,
+.submit-rating:hover {
   background-color: #dd3f21;
 }
 
@@ -699,7 +701,8 @@ body.login {
   }
 }
 /* Create Note */
-.create-note {
+.create-note,
+.create-rating {
   background-color: #ddd;
   padding: 20px;
   margin-bottom: 20px;
@@ -715,7 +718,8 @@ body.login {
   box-sizing: border-box;
 }
 
-.new-note-body {
+.new-note-body,
+.new-rating-body {
   width: 100%;
   box-sizing: border-box;
   resize: none;

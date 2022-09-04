@@ -33,6 +33,7 @@ function universitySearchResults ($request) { // arrays get converted to valid J
         $results['professors'][] = $item;
       break;
       case 'program':
+        $results['programs'][] = $item;
         $relatedCampuses = get_field('related_campus');
         if (count($relatedCampuses)):
           foreach($relatedCampuses as $campus):
@@ -41,7 +42,6 @@ function universitySearchResults ($request) { // arrays get converted to valid J
             $results['campuses'][] = $item;
           endforeach;
         endif;
-        $results['programs'][] = $item;
       break;
       case 'campus':
         $results['campuses'][] = $item;

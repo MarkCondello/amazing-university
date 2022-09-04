@@ -7,7 +7,7 @@ while(have_posts()):
     <div class="generic-content">
         <div class="row group">
             <div class="one-third"><?php the_post_thumbnail('professorPortrait');?></div> 
-            <div class="two-thirds">
+            <div class="two-thirds like-box-container">
     <?php   $likeCount = new WP_Query([
                 'post_type' => 'like',
                 'meta_query' => [
@@ -18,19 +18,31 @@ while(have_posts()):
                     ],
                 ]
             ]);
-            $likeExistsQuery = new WP_Query([
-                'author' => get_current_user_id(),
-                'post_type' => 'like',
-                'meta_query' => [
-                    [
-                        'key' => 'liked_professor_id',
-                        'compare' => '=',
-                        'value' => get_the_ID(),
+            $likeId = null;
+            if (is_user_logged_in()) :
+                $likeExists = 'no';
+                $likeExistsQuery = new WP_Query([
+                    'author' => get_current_user_id(),
+                    'post_type' => 'like',
+                    'meta_query' => [
+                        [
+                            'key' => 'liked_professor_id',
+                            'compare' => '=',
+                            'value' => get_the_ID(),
+                        ],
                     ],
-                ]
-            ]);
-            $likeExists = $likeExistsQuery->found_posts ? 'yes' : 'no'; ?>
-                <span class="like-box" data-exists="<?= $likeExists ?>" data-professor-id="<?= the_ID() ?>">
+                ]);
+                $likeExists = $likeExistsQuery->found_posts ? 'yes' : 'no';
+                if ($likeExists == 'yes') {
+                  $likeId = $likeExistsQuery->posts[0]->ID;
+                }
+            endif ?>
+                <span
+                    class="like-box"
+                    data-exists="<?= $likeExists ?>"
+                    data-professor-id="<?= the_ID() ?>"
+                    data-like-id="<?= $likeId ?>"
+                >
                     <i class="fa fa-heart-o" aria-hidden="true"></i>
                     <i class="fa fa-heart" aria-hidden="true"></i>
                     <span class="like-count"><?= $likeCount->found_posts ?></span>

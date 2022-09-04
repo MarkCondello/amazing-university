@@ -159,13 +159,20 @@ add_filter('acf/fields/google_map/api', 'universityMapKey');
 
 //redirect to home page instead of admin if users role is subscriber.
 function redirect_subs_to_home(){
-    $currentUser = wp_get_current_user();
-    if(count($currentUser->roles) == 1 && $currentUser->roles[0] == "subscriber"){
+    if (userIsSubscriber()) {
         wp_redirect(site_url('/'));
         exit;
     }
 }
 add_action('admin_init', 'redirect_subs_to_home');
+
+function userIsSubscriber(){
+    $currentUser = wp_get_current_user();
+    if(count($currentUser->roles) == 1 && $currentUser->roles[0] == "subscriber"){
+        return true;
+    }
+    return false;
+}
 
 function remove_topbar(){ //remove to topbar admin if subscriber is logged
     $currentUser = wp_get_current_user();
@@ -275,4 +282,7 @@ add_filter('wp_insert_post_data', 'makeNotePrivate', 10, 2);
 //     ));
 // } 
 // add_action('init', 'university_post_types', 1);
+
+require get_theme_file_path('/includes/rating-routes.php');
+
 ?>

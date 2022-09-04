@@ -5,19 +5,18 @@ class Likes {
     this.events()
   }
   events() {
-    $('.like-box').on('click', (ev)=> this.ourClickDispatcher(ev))
+    $('.like-box-container').on('click', '.like-box', (ev)=> this.ourClickDispatcher(ev))
   }
   ourClickDispatcher(ev) {
-    const $likeBox = $(ev.target).closest('.like-box'),
-    professorId = $likeBox.data('professor-id')
-    console.log('dispatcher..', $likeBox.data('professor-id'))
-    if ($likeBox.data('exists') === 'yes') {
-      this.deleteLike(professorId)
+    const $likeBox = $(ev.target).closest('.like-box')
+    console.log('dispatcher..', $likeBox)
+    if ($likeBox.attr('data-exists') == 'yes') {
+      this.deleteLike($likeBox)
     } else {
-      this.createLike(professorId)
+      this.createLike($likeBox)
     }
   }
-  createLike(professorId) {
+  createLike($likeBox) {
     console.log('reached createLike: ')
     $.ajax({
       beforeSend: (xhr) => {
@@ -25,19 +24,23 @@ class Likes {
       },
       url: `${uniData.root_url}/wp-json/university/v1/add-like`,
       data: {
-        professorId,
+        professorId: $likeBox.attr('data-professor-id'),
       },
       type: 'POST',
       success: (response) => {
-        console.log(response)
-
+        $likeBox.attr('data-exists', 'yes')
+        $likeBox.attr('data-like-id', response) // dynamically add the like-id so it can be toggled
+        const $likeBoxCounter = $likeBox.find('.like-count'),
+        currentCount = parseInt($likeBoxCounter.text())
+        $likeBoxCounter.html(currentCount + 1)
+        console.log('Reached success', response, $likeBox)
       },
       error: (response) => {
         console.log('Unsuccessful: ', response)
       },
     })
   }
-  deleteLike(professorId) {
+  deleteLike($likeBox) {
     console.log('reached deleteLike')
     $.ajax({
       beforeSend: (xhr) => {
@@ -45,18 +48,21 @@ class Likes {
       },
       url: `${uniData.root_url}/wp-json/university/v1/delete-like`,
       data: {
-        professorId,
+        likeId: $likeBox.attr('data-like-id'),
       },
       type: 'DELETE',
       success: (response) => {
         console.log('reached deleteLike:', response)
-
+        $likeBox.attr('data-exists', 'no')
+        $likeBox.attr('like-id', null) // dynamically add the like-id  to null so it can be toggled
+        const $likeBoxCounter = $likeBox.find('.like-count'),
+        currentCount = parseInt($likeBoxCounter.text())
+        $likeBoxCounter.html(currentCount - 1)
       },
       error: (response) => {
         console.log('Unsuccessful: ', response)
       },
     })
-
   }
 }
 

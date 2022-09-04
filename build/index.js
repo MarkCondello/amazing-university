@@ -15,8 +15,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_Search__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/Search */ "./src/modules/Search.js");
 /* harmony import */ var _modules_MyNotes__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/MyNotes */ "./src/modules/MyNotes.js");
 /* harmony import */ var _modules_Likes__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/Likes */ "./src/modules/Likes.js");
+/* harmony import */ var _modules_Ratings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./modules/Ratings */ "./src/modules/Ratings.js");
  // Our modules / classes
 // import HeroSlider from './modules/HeroSlider'
+
 
 
 
@@ -28,7 +30,8 @@ const mobileMenu = new _modules_MobileMenu__WEBPACK_IMPORTED_MODULE_1__["default
 googleMap = new _modules_GoogleMap__WEBPACK_IMPORTED_MODULE_2__["default"](),
       siteSearch = new _modules_Search__WEBPACK_IMPORTED_MODULE_3__["default"](),
       myNotes = new _modules_MyNotes__WEBPACK_IMPORTED_MODULE_4__["default"](),
-      likes = new _modules_Likes__WEBPACK_IMPORTED_MODULE_5__["default"](); // // Instantiate a new object using our modules/classes
+      likes = new _modules_Likes__WEBPACK_IMPORTED_MODULE_5__["default"](),
+      ratings = new _modules_Ratings__WEBPACK_IMPORTED_MODULE_6__["default"](); // // Instantiate a new object using our modules/classes
 
 jQuery(document).ready(function ($) {
   $('.hero-slider').owlCarousel({
@@ -138,22 +141,21 @@ class Likes {
   }
 
   events() {
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()('.like-box').on('click', ev => this.ourClickDispatcher(ev));
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()('.like-box-container').on('click', '.like-box', ev => this.ourClickDispatcher(ev));
   }
 
   ourClickDispatcher(ev) {
-    const $likeBox = jquery__WEBPACK_IMPORTED_MODULE_0___default()(ev.target).closest('.like-box'),
-          professorId = $likeBox.data('professor-id');
-    console.log('dispatcher..', $likeBox.data('professor-id'));
+    const $likeBox = jquery__WEBPACK_IMPORTED_MODULE_0___default()(ev.target).closest('.like-box');
+    console.log('dispatcher..', $likeBox);
 
-    if ($likeBox.data('exists') === 'yes') {
-      this.deleteLike(professorId);
+    if ($likeBox.attr('data-exists') == 'yes') {
+      this.deleteLike($likeBox);
     } else {
-      this.createLike(professorId);
+      this.createLike($likeBox);
     }
   }
 
-  createLike(professorId) {
+  createLike($likeBox) {
     console.log('reached createLike: ');
     jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
       beforeSend: xhr => {
@@ -161,11 +163,17 @@ class Likes {
       },
       url: `${uniData.root_url}/wp-json/university/v1/add-like`,
       data: {
-        professorId
+        professorId: $likeBox.attr('data-professor-id')
       },
       type: 'POST',
       success: response => {
-        console.log(response);
+        $likeBox.attr('data-exists', 'yes');
+        $likeBox.attr('data-like-id', response); // dynamically add the like-id so it can be toggled
+
+        const $likeBoxCounter = $likeBox.find('.like-count'),
+              currentCount = parseInt($likeBoxCounter.text());
+        $likeBoxCounter.html(currentCount + 1);
+        console.log('Reached success', response, $likeBox);
       },
       error: response => {
         console.log('Unsuccessful: ', response);
@@ -173,7 +181,7 @@ class Likes {
     });
   }
 
-  deleteLike(professorId) {
+  deleteLike($likeBox) {
     console.log('reached deleteLike');
     jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
       beforeSend: xhr => {
@@ -181,11 +189,17 @@ class Likes {
       },
       url: `${uniData.root_url}/wp-json/university/v1/delete-like`,
       data: {
-        professorId
+        likeId: $likeBox.attr('data-like-id')
       },
       type: 'DELETE',
       success: response => {
         console.log('reached deleteLike:', response);
+        $likeBox.attr('data-exists', 'no');
+        $likeBox.attr('like-id', null); // dynamically add the like-id  to null so it can be toggled
+
+        const $likeBoxCounter = $likeBox.find('.like-count'),
+              currentCount = parseInt($likeBoxCounter.text());
+        $likeBoxCounter.html(currentCount - 1);
       },
       error: response => {
         console.log('Unsuccessful: ', response);
@@ -372,6 +386,63 @@ class MyNotes {
 }
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (MyNotes);
+
+/***/ }),
+
+/***/ "./src/modules/Ratings.js":
+/*!********************************!*\
+  !*** ./src/modules/Ratings.js ***!
+  \********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Ratings)
+/* harmony export */ });
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "jquery");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
+
+class Ratings {
+  constructor() {
+    this.events();
+  }
+
+  events() {
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()('.submit-rating').on('click', ev => this.handleSubmit(ev)); // ToDo: Add delete and edit events with event delegation
+  }
+
+  handleSubmit(ev) {
+    const $submitRatingBtn = jquery__WEBPACK_IMPORTED_MODULE_0___default()(ev.target),
+          // Disable button and change text to sending
+    $ratingNumber = $submitRatingBtn.closest('.create-rating').find('.new-rating-number'),
+          $ratingContent = $submitRatingBtn.closest('.create-rating').find('.new-rating-body'); // clear out the comment field on success
+
+    console.log('reached handleSubmit', {
+      ratingNumb: $ratingNumber.val(),
+      ratingContent: $ratingContent.val(),
+      programId: $submitRatingBtn.attr('data-program-id')
+    });
+    jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
+      beforeSend: xhr => {
+        xhr.setRequestHeader('X-WP-Nonce', uniData.nonce); //Number used once
+      },
+      url: `${uniData.root_url}/wp-json/university/v1/add-rating`,
+      data: {
+        programId: $submitRatingBtn.attr('data-program-id'),
+        rating: $ratingNumber.val(),
+        content: $ratingContent.val()
+      },
+      type: 'POST',
+      success: response => {
+        console.log('Reached rating success', response);
+      },
+      error: response => {
+        console.log('Unsuccessful: ', response);
+      }
+    });
+  }
+
+}
 
 /***/ }),
 
