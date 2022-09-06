@@ -2,7 +2,9 @@
 .edit-note,
 .delete-note,
 .submit-note,
-.submit-rating {
+.submit-rating,
+.edit-rating,
+.delete-rating {
   font-size: 0.9rem;
   background-color: #eee;
   padding: 8px 16px;
@@ -25,21 +27,26 @@
 
 .edit-note,
 .delete-note {
-  i {
-    pointer-events: none;
-  }
   @media (min-width: 635px) {
     position: relative;
     top: -12px;
   }
 }
 
-.edit-note:hover,
-.delete-note:hover {
-  background-color: #ddd;
+.edit-note,
+.delete-note,
+.edit-rating,
+.delete-rating {
+  i {
+    pointer-events: none;
+  }
+  &:hover {
+    background-color: #ddd;
+  }
 }
 
-.delete-note {
+.delete-note,
+.delete-rating {
   color: red;
 }
 

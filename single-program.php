@@ -2,14 +2,17 @@
 <?php
 get_header();
 pageBanner();
+$programTitle = '';
 while(have_posts()):
-  the_post();?>
+  the_post();
+  $programTitle = get_the_title();
+?>
 <div class="container container--narrow page-section">
   <div class="metabox metabox--position-up metabox--with-home-link">
       <p>
         <a class="metabox__blog-home-link" href="<?php echo  get_post_type_archive_link('program'); ?>">
           <i class="fa fa-home" aria-hidden="true"></i> All Programs </a>
-          <span class="metabox__main"><?php the_title() ?> </span>
+          <span class="metabox__main"><?= $programTitle ?> </span>
       </p>
   </div>
   <div class="generic-content">
@@ -92,49 +95,93 @@ if($relatedCampuses) :
     <li><a href="<?php echo get_the_permalink($campus); ?>"> <?php echo get_the_title($campus); ?></a></li>
     <?php
   }
-  echo "</ul>";
+  echo "</ul>
+  <p>Program ID: ". get_the_ID() ."</p>";
 endif;
-wp_reset_postdata();
+wp_reset_postdata(); ?>
 
-$ratingsQuery = new WP_Query([
-  // 'author_id' => [get_current_user_id()],
+  <hr class="section-break">
+  <h2 class="headline headline--medium"><?= the_title() ?> program ratings</h2>
+  <ul class='min-list link-list' id="rating-list">
+
+<?php
+$ratingQueryParams = [
   'post_type' => 'rating',
   'post_status' => 'publish',
+  'orderby' => 'date',
+  'order' => 'ASC',
   'meta_query' => [
     [
       'key' => 'program_id',
       'compare' => '=',
-      'value' => get_the_ID(),
+      'value' =>  get_the_ID(),
     ],
   ],
-]);
-
-
+];
+$ratingsQuery = new WP_Query($ratingQueryParams);
 // Rating starts here
-if ($ratingsQuery->have_posts()): ?>
-  <hr class="section-break">
-  <h2 class="headline headline--medium"><?= the_title() ?> program ratings</h2>
-  <ul class='min-list link-list'>
-  <?php
+if ($ratingsQuery->have_posts()):
   while($ratingsQuery->have_posts()):
     $ratingsQuery->the_post();
-    // Add in the rating
-    // if the rating is current users, add delete and edit features
-    echo "<li>" . get_the_content() . "</li>";
+    $author_id = get_post_field('post_author', get_the_ID());
+    $user_created_this_rating = $author_id == get_current_user_id();
+    echo 'post author ID: ' . $author_id . 'Current userID: ' . get_current_user_id(); ?>
+    <!-- // Add in the rating
+    // if the rating is the current users, add delete and edit features -->
+    <li style="height: 40px;" class="rating">
+      <div class="row">
+        <div class="two-thirds">
+<?php   for($i = 0; $i < get_field('rating'); $i++){
+        echo "<span class='fa fa-star'></span>";
+        }
+        echo get_the_content(); ?>
+        </div>
+        <div class="one-third">
+    <?php if ($user_created_this_rating): ?>
+          <span class="edit-rating"><i class="fa fa-pencil" aria-hidden="true"></i> Edit</span>
+          <span class="delete-rating" data-rating-id="<?= get_the_ID() ?>"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</span>
+    <?php endif; ?>
+        </div>
+      </div>
+<?php if ($user_created_this_rating): ?>
+      <!-- Create an edit rating modal if the user owns the rating -->
+      <div class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <div class="create-rating">
+            <h2>Update your rating this program</h2>
+            <label for="program_rating">Rating out of 5</label>
+            <div>
+              <input class="new-rating-number" type="range" min="1" max="5" name="program_rating" value="<?= get_field('rating'); ?>"/>
+              <br></p></br>
+            </div>
+            <textarea class="new-rating-body" placeholder="Your rating goes here..."><?= get_the_content(); ?></textarea>
+            <span class="update-rating" data-program-id="<?= the_ID(); ?>">Update rating</span>
+          </div>
+        </div>
+      </div>
+<?php endif; ?>
+    </li>
+    <?php
   endwhile;
-  echo "</ul>";
-endif;
-?>
+else: ?>
+  <li class="no-ratings-message">There were no rating for this program. Create one below.</li>
+<?php
+endif; ?>
+  </ul>
 <!-- Rating feature
 Add rating form here that only subscribers can see and create a rating
   Only 1 rating can be created for a program by any one subscriber
   Only the owner of the rating can edit or delete the rating
   Display all the ratings ordered by date -->
 <?php
-if (is_user_logged_in() && userIsSubscriber()): ?>
+if (is_user_logged_in() && userIsSubscriber()):
+  $currentUsersRatingsQuery = new WP_Query(array_merge($ratingQueryParams, [ 'post_author' => get_current_user_id()]));
+  if ($currentUsersRatingsQuery->found_posts == 0):
+?>
   <div class="container container--narrow page-section">
     <div class="create-rating">
-      <h2>Add your rating for the <?= the_title() ?> program</h2>
+      <h2>Add your rating for the <?= $programTitle ?> program</h2>
       <label for="program_rating">Rating out of 5</label>
       <div>
       <input class="new-rating-number" type="range" min="1" max="5" name="program_rating" value="5"/>
@@ -142,10 +189,13 @@ if (is_user_logged_in() && userIsSubscriber()): ?>
       </div>
       <textarea class="new-rating-body" placeholder="Your rating goes here..."></textarea>
       <span class="submit-rating" data-program-id="<?= the_ID()?>">Create rating</span>
+      <!-- If user tries to add another rating show an error message -->
       <!-- <span class="rating-limit-message">You have reached your rating limit. Delete a previous rating to create a new one.</span> -->
     </div>
   </div>
-<?php endif;?>
+<?php
+  endif;
+endif;?>
 </div>
 <?php
 endwhile;

@@ -76,7 +76,7 @@ class MyNotes {
       },
     })
   }
-  createNote($btn) {
+  createNote() {
     const newNote = {
       'title' : $('.new-note-title').val(),
       'content' : $('.new-note-body').val(),
