@@ -414,28 +414,74 @@ class Ratings {
   }
 
   showModal(ev) {
-    console.log('reached HandleEdit');
-    const $deleteRatingBtn = jquery__WEBPACK_IMPORTED_MODULE_0___default()(ev.target),
-          $editModal = $deleteRatingBtn.closest('.rating').find('.modal'),
+    console.log('reached showModal');
+    const $editRatingBtn = jquery__WEBPACK_IMPORTED_MODULE_0___default()(ev.target),
+          $editModal = $editRatingBtn.closest('.rating').find('.modal'),
           $editModalCloseBtn = $editModal.find('.close'),
           // need click event for this one
     $updateRatingBtn = $editModal.find('.update-rating'); // need click for this one too
 
+    jquery__WEBPACK_IMPORTED_MODULE_0___default()('body').css({
+      'overflow': 'hidden',
+      'overflow-y': 'hidden'
+    });
     $editModal.show();
     $editModalCloseBtn.on('click', function () {
       $editModal.hide();
+      jquery__WEBPACK_IMPORTED_MODULE_0___default()('body').css({
+        'overflow': 'visible',
+        'overflow-y': 'visible'
+      });
+    });
+    $updateRatingBtn.on('click', () => this.handleUpdate($updateRatingBtn, $editModal));
+  }
+
+  handleUpdate($updateRatingBtn, $editRatingBtn, $editModal) {
+    const ratingId = $updateRatingBtn.attr('data-rating-id'),
+          $modalContentArea = $updateRatingBtn.closest('.create-rating'),
+          rating = $modalContentArea.find('.new-rating-number').val(),
+          content = $modalContentArea.find('.new-rating-body').val(); // console.log('Reached handleUpdate', $modal)
+
+    jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
+      beforeSend: xhr => {
+        xhr.setRequestHeader('X-WP-Nonce', uniData.nonce); //Number used once
+      },
+      url: `${uniData.root_url}/wp-json/university/v1/update-rating`,
+      data: {
+        ratingId,
+        rating,
+        content
+      },
+      type: 'POST',
+      success: response => {
+        const $ratingRow = $editRatingBtn.closest('.rating'),
+              $stars = $ratingRow.find('.stars'),
+              $content = $ratingRow.find('.content'); // Update the front end
+
+        console.log(response, $editModal);
+        let starsMarkup = [];
+
+        for (let i = 0; i < parseInt(response.rating); i++) {
+          starsMarkup.push(`<span class='fa fa-star'></span>`);
+        }
+
+        starsMarkup = starsMarkup.join('');
+        $content.text(response.post_content);
+        $stars.html(starsMarkup); // TODO timeout is not working
+        // setTimeout(function(){
+        //   $editModal.hide()
+        // }, 1000)
+      },
+      error: response => {
+        console.log('Unsuccessful: ', response);
+      }
     });
   }
 
   handleDelete(ev) {
     const $deleteRatingBtn = jquery__WEBPACK_IMPORTED_MODULE_0___default()(ev.target),
           $rating = $deleteRatingBtn.closest('.rating'),
-          ratingId = $deleteRatingBtn.attr('data-rating-id'); // Check this
-
-    console.log('reached handleDelete', {
-      $rating,
-      ratingId
-    });
+          ratingId = $deleteRatingBtn.attr('data-rating-id');
     jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
       beforeSend: xhr => {
         xhr.setRequestHeader('X-WP-Nonce', uniData.nonce); //Number used once
@@ -507,16 +553,6 @@ class Ratings {
     });
   }
 
-} // 
-
-{
-  /* <li data-note-id='${response.id}'>
-  <input value="${response.title.raw}" class="note-title-field" readonly>
-  <span class="edit-note"><i class="fa fa-pencil" aria-hidden="true"></i> Edit</span>
-  <span class="delete-note"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</span>
-  <textarea class="note-body-field" readonly>${response.content.raw}</textarea>
-  <span class="update-note btn btn--blue btn--small"><i class="fa fa-arrow-right" aria-hidden="true"></i> Save</span>
-  </li> */
 }
 
 /***/ }),

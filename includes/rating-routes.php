@@ -9,9 +9,53 @@ function registerRatingRoutes()
     'methods' => 'DELETE',
     'callback' => 'deleteRating',
   ]);
+  register_rest_route('university/v1', 'update-rating', [
+    'methods' => 'POST',
+    'callback' => 'updateRating',
+  ]);
   // need edit route too
 }
 add_action('rest_api_init', 'registerRatingRoutes');
+
+function updateRating($data)
+{
+  if (is_user_logged_in() && userIsSubscriber()):
+    $ratingId = sanitize_text_field($data['ratingId']);
+    $ratingExistsQuery = new WP_Query([
+      'p' => $ratingId,
+      'author_id' => [get_current_user_id()],
+      'post_type' => 'rating',
+      'post_status' => 'publish',
+    ]);
+    if ($ratingExistsQuery->found_posts && get_post_type($ratingId) == 'rating') :
+      $rating = sanitize_text_field($data['rating']);
+      $content = sanitize_text_field($data['content']);
+      $updatedRatingId = wp_update_post([
+        'ID' => $ratingId,
+        'post_title' => 'Rating ' . $ratingId . ' updated.',
+        'post_content' => $content,
+        'meta_input' => [
+          'rating' => $rating
+        ],
+      ]);
+      $updatedRatingQuery = new WP_Query([
+        'p' => $updatedRatingId,
+        'author_id' => [get_current_user_id()],
+        'post_type' => 'rating',
+      ]);
+      //send back the newly updated Rating
+      $updatedRatingCustomFields = [
+        'rating' => get_field('rating', $updatedRatingId),
+        'programId' => get_field('program_id', $updatedRatingId),
+      ];
+      return array_merge((array) $updatedRatingQuery->posts[0], (array) $updatedRatingCustomFields);
+    else:
+      die('The ratingID to delete does not exist or the ID is not for a rating.');
+    endif;
+  else:
+    die('Only logged in subscribers can delete a rating.');
+  endif;
+}
 
 function deleteRating($data)
 {
@@ -25,7 +69,7 @@ function deleteRating($data)
     ]);
     if ($ratingExistsQuery->found_posts && get_post_type($ratingId) == 'rating') :
       wp_delete_post($ratingId, true);
-      return 'Like succesfully deleted';
+      return 'Rating succesfully deleted';
     else:
         die('The ratingID to delete does not exist or the ID is not for a rating.');
     endif;
@@ -40,7 +84,6 @@ function addRating($data)
     $programId = sanitize_text_field($data['programId']);
     $rating = sanitize_text_field($data['rating']);
     $content = sanitize_text_field($data['content']);
-
     $ratingExistsQuery = new WP_Query([
       'author_id' => [get_current_user_id()],
       'post_type' => 'rating',
@@ -52,6 +95,7 @@ function addRating($data)
           'value' => '"' . $programId . '"',
         ],
         //should I add the rating meta check too?
+        // Yes
       ],
     ]);
     // check for an existing rating with the programID created by the user
@@ -78,7 +122,6 @@ function addRating($data)
         'programId' => get_field('program_id', $newRatingId),
       ];
       return array_merge((array) $newRatingQuery->posts[0], (array) $newRatingCustomFields);
-
     } else {
       // This objects below are just for feedback
       if ($ratingExistsQuery->found_posts) {

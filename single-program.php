@@ -131,10 +131,12 @@ if ($ratingsQuery->have_posts()):
     <li style="height: 40px;" class="rating">
       <div class="row">
         <div class="two-thirds">
-<?php   for($i = 0; $i < get_field('rating'); $i++){
-        echo "<span class='fa fa-star'></span>";
-        }
-        echo get_the_content(); ?>
+          <div class="stars">
+  <?php   for($i = 0; $i < get_field('rating'); $i++){
+            echo "<span class='fa fa-star'></span>";
+          } ?>
+          </div>
+          <div class="content"><?= get_the_content(); ?></div>
         </div>
         <div class="one-third">
     <?php if ($user_created_this_rating): ?>
@@ -156,7 +158,7 @@ if ($ratingsQuery->have_posts()):
               <br></p></br>
             </div>
             <textarea class="new-rating-body" placeholder="Your rating goes here..."><?= get_the_content(); ?></textarea>
-            <span class="update-rating" data-program-id="<?= the_ID(); ?>">Update rating</span>
+            <span class="update-rating" data-rating-id="<?= the_ID(); ?>">Update rating</span>
           </div>
         </div>
       </div>
