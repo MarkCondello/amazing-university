@@ -414,7 +414,6 @@ class Ratings {
   }
 
   showModal(ev) {
-    console.log('reached showModal');
     const $editRatingBtn = jquery__WEBPACK_IMPORTED_MODULE_0___default()(ev.target),
           $editModal = $editRatingBtn.closest('.rating').find('.modal'),
           $editModalCloseBtn = $editModal.find('.close'),
@@ -425,23 +424,22 @@ class Ratings {
       'overflow': 'hidden',
       'overflow-y': 'hidden'
     });
-    $editModal.show();
+    $editModal.fadeIn();
     $editModalCloseBtn.on('click', function () {
-      $editModal.hide();
+      $editModal.fadeOut();
       jquery__WEBPACK_IMPORTED_MODULE_0___default()('body').css({
         'overflow': 'visible',
         'overflow-y': 'visible'
       });
     });
-    $updateRatingBtn.on('click', () => this.handleUpdate($updateRatingBtn, $editModal));
+    $updateRatingBtn.on('click', () => this.handleUpdate($updateRatingBtn, $editRatingBtn));
   }
 
-  handleUpdate($updateRatingBtn, $editRatingBtn, $editModal) {
+  handleUpdate($updateRatingBtn, $editRatingBtn) {
     const ratingId = $updateRatingBtn.attr('data-rating-id'),
-          $modalContentArea = $updateRatingBtn.closest('.create-rating'),
-          rating = $modalContentArea.find('.new-rating-number').val(),
-          content = $modalContentArea.find('.new-rating-body').val(); // console.log('Reached handleUpdate', $modal)
-
+          $modal = $updateRatingBtn.closest('.modal'),
+          rating = $modal.find('.new-rating-number').val(),
+          content = $modal.find('.new-rating-body').val();
     jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
       beforeSend: xhr => {
         xhr.setRequestHeader('X-WP-Nonce', uniData.nonce); //Number used once
@@ -456,9 +454,7 @@ class Ratings {
       success: response => {
         const $ratingRow = $editRatingBtn.closest('.rating'),
               $stars = $ratingRow.find('.stars'),
-              $content = $ratingRow.find('.content'); // Update the front end
-
-        console.log(response, $editModal);
+              $content = $ratingRow.find('.content');
         let starsMarkup = [];
 
         for (let i = 0; i < parseInt(response.rating); i++) {
@@ -467,10 +463,14 @@ class Ratings {
 
         starsMarkup = starsMarkup.join('');
         $content.text(response.post_content);
-        $stars.html(starsMarkup); // TODO timeout is not working
-        // setTimeout(function(){
-        //   $editModal.hide()
-        // }, 1000)
+        $stars.html(starsMarkup);
+        setTimeout(function () {
+          $modal.fadeOut();
+          jquery__WEBPACK_IMPORTED_MODULE_0___default()('body').css({
+            'overflow': 'hidden',
+            'overflow-y': 'hidden'
+          });
+        }, 500);
       },
       error: response => {
         console.log('Unsuccessful: ', response);
@@ -544,6 +544,22 @@ class Ratings {
               <span class="delete-rating" data-rating-id="${response.ID}"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</span>
             </div>
           </div>
+          <div class="modal">
+          <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="create-rating">
+              <h2>Update your rating this program</h2>
+              <label for="program_rating">Rating out of 5 yo</label>
+              <div>
+                <input class="new-rating-number" type="range" min="1" max="5" name="program_rating" value="${response.rating}"/>
+                <br></p></br>
+              </div>
+              <textarea class="new-rating-body" placeholder="Your rating goes here...">${response.post_content}</textarea>
+              <span class="update-rating" data-rating-id="${response.ID}">Update rating</span>
+            </div>
+          </div>
+        </div>
+
         </li>`).prependTo('#rating-list').hide().slideDown();
       },
       error: response => {
