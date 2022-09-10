@@ -99,22 +99,20 @@ if($relatedCampuses) :
   <p>Program ID: ". get_the_ID() ."</p>";
 endif;
 wp_reset_postdata(); ?>
-
   <hr class="section-break">
   <h2 class="headline headline--medium"><?= the_title() ?> program ratings</h2>
   <ul class='min-list link-list' id="rating-list">
-
 <?php
 $ratingQueryParams = [
   'post_type' => 'rating',
   'post_status' => 'publish',
   'orderby' => 'date',
-  'order' => 'ASC',
+  'order' => 'DESC',
   'meta_query' => [
     [
       'key' => 'program_id',
       'compare' => '=',
-      'value' =>  get_the_ID(),
+      'value' => get_the_ID(),
     ],
   ],
 ];
@@ -125,10 +123,12 @@ if ($ratingsQuery->have_posts()):
     $ratingsQuery->the_post();
     $author_id = get_post_field('post_author', get_the_ID());
     $user_created_this_rating = $author_id == get_current_user_id();
-    echo 'post author ID: ' . $author_id . 'Current userID: ' . get_current_user_id(); ?>
+    // echo 'post author ID: ' . $author_id . '. Current userID: ' . get_current_user_id() . '<br>';
+    // echo '$user_created_this_rating = ' . $user_created_this_rating;
+    ?>
     <!-- // Add in the rating
     // if the rating is the current users, add delete and edit features -->
-    <li style="height: 40px;" class="rating">
+    <li class="rating">
       <div class="row">
         <div class="two-thirds">
           <div class="stars">
@@ -136,7 +136,11 @@ if ($ratingsQuery->have_posts()):
             echo "<span class='fa fa-star'></span>";
           } ?>
           </div>
-          <div class="content"><?= get_the_content(); ?></div>
+          <div class="content">
+            <?= get_the_content(); ?>
+            <!-- Show who created the rating if checkbox to show is checked -->
+            <br><cite><small>Written by: <?= the_author_meta('user_nicename') ?></small></cite>
+          </div>
         </div>
         <div class="one-third">
     <?php if ($user_created_this_rating): ?>
@@ -166,6 +170,7 @@ if ($ratingsQuery->have_posts()):
     </li>
     <?php
   endwhile;
+  wp_reset_postdata();
 else: ?>
   <li class="no-ratings-message">There were no rating for this program. Create one below.</li>
 <?php
@@ -178,7 +183,13 @@ Add rating form here that only subscribers can see and create a rating
   Display all the ratings ordered by date -->
 <?php
 if (is_user_logged_in() && userIsSubscriber()):
-  $currentUsersRatingsQuery = new WP_Query(array_merge($ratingQueryParams, [ 'post_author' => get_current_user_id()]));
+  $mergedArrays = array_merge(['author' => get_current_user_id()], $ratingQueryParams);
+  // echo '<pre>';
+  // var_dump($mergedArrays);
+  // echo '</pre>';
+  $currentUsersRatingsQuery = new WP_Query($mergedArrays);
+  // echo '$currentUsersRatingsQuery->found_posts = ' . $currentUsersRatingsQuery->found_posts;
+  // echo '<br>Username: ' . wp_get_current_user()->user_login;
   if ($currentUsersRatingsQuery->found_posts == 0):
 ?>
   <div class="container container--narrow page-section">
@@ -196,7 +207,12 @@ if (is_user_logged_in() && userIsSubscriber()):
     </div>
   </div>
 <?php
+  else:
+    // echo '<pre>';
+    // var_dump($currentUsersRatingsQuery->posts[0]);
+    // echo '</pre>';
   endif;
+
 endif;?>
 </div>
 <?php

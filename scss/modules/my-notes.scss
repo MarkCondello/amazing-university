@@ -4,7 +4,8 @@
 .submit-note,
 .submit-rating,
 .edit-rating,
-.delete-rating {
+.delete-rating,
+.update-rating {
   font-size: 0.9rem;
   background-color: #eee;
   padding: 8px 16px;
@@ -15,7 +16,8 @@
 }
 
 .submit-note,
-.submit-rating {
+.submit-rating,
+.update-rating {
   color: #fff;
   border: none;
   background-color: $darkOrange;
@@ -26,7 +28,8 @@
 }
 
 .edit-note,
-.delete-note {
+.delete-note,
+.update-rating {
   @media (min-width: 635px) {
     position: relative;
     top: -12px;

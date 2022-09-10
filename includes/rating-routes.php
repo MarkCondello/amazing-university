@@ -50,7 +50,7 @@ function updateRating($data)
       ];
       return array_merge((array) $updatedRatingQuery->posts[0], (array) $updatedRatingCustomFields);
     else:
-      die('The ratingID to delete does not exist or the ID is not for a rating.');
+      die('The ratingID to update does not exist or the ID is not for a rating.');
     endif;
   else:
     die('Only logged in subscribers can delete a rating.');
@@ -63,7 +63,7 @@ function deleteRating($data)
     $ratingId = sanitize_text_field($data['ratingId']);
     $ratingExistsQuery = new WP_Query([
       'p' => $ratingId,
-      'author_id' => [get_current_user_id()],
+      'author' => get_current_user_id(),
       'post_type' => 'rating',
       'post_status' => 'publish',
     ]);
@@ -85,14 +85,14 @@ function addRating($data)
     $rating = sanitize_text_field($data['rating']);
     $content = sanitize_text_field($data['content']);
     $ratingExistsQuery = new WP_Query([
-      'author_id' => [get_current_user_id()],
+      'author' => get_current_user_id(),
       'post_type' => 'rating',
       'post_status' => 'publish',
       'meta_query' => [
         [
           'key' => 'program_id',
-          'compare' => 'LIKE',
-          'value' => '"' . $programId . '"',
+          'compare' => '=',
+          'value' => $programId,
         ],
         //should I add the rating meta check too?
         // Yes
@@ -113,7 +113,7 @@ function addRating($data)
       ]);
       $newRatingQuery = new WP_Query([
         'p' => $newRatingId,
-        'author_id' => [get_current_user_id()],
+        'author' => get_current_user_id(),
         'post_type' => 'rating',
       ]);
       //send back the newly created Rating
@@ -130,7 +130,7 @@ function addRating($data)
         ];
       } else {
         return (object)[
-          'ratingMessage' => 'Id param is not a rating.',
+          'ratingMessage' => 'ID param is not a rating.',
         ];
       }
       die('Invalid program ID or existing rating by subscriber exists');

@@ -335,6 +335,7 @@ li {
 
 @media (min-width: 960px) {
   .row {
+    display: flex;
     margin-right: -50px;
   }
   .one-half,
@@ -344,7 +345,6 @@ li {
 .one-fifth,
 .one-sixth {
     padding-bottom: 0;
-    float: left;
     box-sizing: border-box;
     padding-right: 50px;
   }
@@ -590,7 +590,8 @@ body.login {
 .submit-note,
 .submit-rating,
 .edit-rating,
-.delete-rating {
+.delete-rating,
+.update-rating {
   font-size: 0.9rem;
   background-color: #eee;
   padding: 8px 16px;
@@ -601,20 +602,23 @@ body.login {
 }
 
 .submit-note,
-.submit-rating {
+.submit-rating,
+.update-rating {
   color: #fff;
   border: none;
   background-color: #F95738;
   line-height: 1.65;
 }
 .submit-note:hover,
-.submit-rating:hover {
+.submit-rating:hover,
+.update-rating:hover {
   background-color: #dd3f21;
 }
 
 @media (min-width: 635px) {
   .edit-note,
-.delete-note {
+.delete-note,
+.update-rating {
     position: relative;
     top: -12px;
   }

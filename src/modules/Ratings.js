@@ -23,6 +23,7 @@ export default class Ratings {
     $updateRatingBtn.on('click', () => this.handleUpdate($updateRatingBtn, $editRatingBtn))
   }
   handleUpdate($updateRatingBtn, $editRatingBtn) {
+    // console.log('reached handleUpdate', {$updateRatingBtn, $editRatingBtn})
     const ratingId = $updateRatingBtn.attr('data-rating-id'),
     $modal = $updateRatingBtn.closest('.modal'),
     rating = $modal.find('.new-rating-number').val(),
@@ -40,6 +41,7 @@ export default class Ratings {
       },
       type: 'POST',
       success: (response) => {
+        console.log('reached handleUpdate success', {response})
         const $ratingRow = $editRatingBtn.closest('.rating'),
         $stars = $ratingRow.find('.stars'),
         $content = $ratingRow.find('.content')
@@ -50,14 +52,13 @@ export default class Ratings {
         starsMarkup = starsMarkup.join('')
         $content.text(response.post_content)
         $stars.html(starsMarkup)
-        
         setTimeout(function(){
           $modal.fadeOut()
-          $('body').css({'overflow': 'hidden', 'overflow-y': 'hidden'})
-        }, 500)
+          $('body').css({'overflow': 'visible', 'overflow-y': 'visible'})
+        }, 250)
       },
       error: (response) => {
-        console.log('Unsuccessful: ', response)
+        console.log('Unsuccessful update: ', response)
       },
     })
   }
@@ -79,7 +80,7 @@ export default class Ratings {
         $rating.slideUp()
       },
       error: (response) => {
-        console.log('Unsuccessful: ', response)
+        console.log('Unsuccessful delete: ', response)
       },
     })
   }
@@ -103,7 +104,7 @@ export default class Ratings {
       type: 'POST',
       success: (response) => {
         $ratingContent.val('')
-        console.log('Reached rating success', response)
+        console.log('Reached rating success for create', response)
         $submitRatingBtn.text('New rating created!')
         $('.no-ratings-message').hide()
         $ratingForm.slideUp()
@@ -113,11 +114,11 @@ export default class Ratings {
         }
         starsMarkup = starsMarkup.join('')
         $(`
-        <li style="height: 40px;" class="rating">
+        <li class="rating">
           <div class="row">
             <div class="two-thirds">
-            ${ starsMarkup }
-            ${ response.post_content }
+              <div class="stars">${ starsMarkup }</div>
+              <div class="content">${ response.post_content }</div>
             </div>
             <div class="one-third">
               <span class="edit-rating"><i class="fa fa-pencil" aria-hidden="true"></i> Edit</span>
@@ -129,7 +130,7 @@ export default class Ratings {
             <span class="close">&times;</span>
             <div class="create-rating">
               <h2>Update your rating this program</h2>
-              <label for="program_rating">Rating out of 5 yo</label>
+              <label for="program_rating">Rating out of 5.</label>
               <div>
                 <input class="new-rating-number" type="range" min="1" max="5" name="program_rating" value="${response.rating}"/>
                 <br></p></br>
@@ -139,12 +140,11 @@ export default class Ratings {
             </div>
           </div>
         </div>
-
         </li>`).prependTo('#rating-list').hide().slideDown()
       },
       error: (response) => {
         $submitRatingBtn.text('error..')
-        console.log('Unsuccessful: ', response)
+        console.log('Unsuccessful create: ', response)
       },
     })
 

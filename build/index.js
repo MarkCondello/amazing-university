@@ -436,6 +436,7 @@ class Ratings {
   }
 
   handleUpdate($updateRatingBtn, $editRatingBtn) {
+    // console.log('reached handleUpdate', {$updateRatingBtn, $editRatingBtn})
     const ratingId = $updateRatingBtn.attr('data-rating-id'),
           $modal = $updateRatingBtn.closest('.modal'),
           rating = $modal.find('.new-rating-number').val(),
@@ -452,6 +453,9 @@ class Ratings {
       },
       type: 'POST',
       success: response => {
+        console.log('reached handleUpdate success', {
+          response
+        });
         const $ratingRow = $editRatingBtn.closest('.rating'),
               $stars = $ratingRow.find('.stars'),
               $content = $ratingRow.find('.content');
@@ -467,13 +471,13 @@ class Ratings {
         setTimeout(function () {
           $modal.fadeOut();
           jquery__WEBPACK_IMPORTED_MODULE_0___default()('body').css({
-            'overflow': 'hidden',
-            'overflow-y': 'hidden'
+            'overflow': 'visible',
+            'overflow-y': 'visible'
           });
-        }, 500);
+        }, 250);
       },
       error: response => {
-        console.log('Unsuccessful: ', response);
+        console.log('Unsuccessful update: ', response);
       }
     });
   }
@@ -496,7 +500,7 @@ class Ratings {
         $rating.slideUp();
       },
       error: response => {
-        console.log('Unsuccessful: ', response);
+        console.log('Unsuccessful delete: ', response);
       }
     });
   }
@@ -521,7 +525,7 @@ class Ratings {
       type: 'POST',
       success: response => {
         $ratingContent.val('');
-        console.log('Reached rating success', response);
+        console.log('Reached rating success for create', response);
         $submitRatingBtn.text('New rating created!');
         jquery__WEBPACK_IMPORTED_MODULE_0___default()('.no-ratings-message').hide();
         $ratingForm.slideUp();
@@ -533,11 +537,11 @@ class Ratings {
 
         starsMarkup = starsMarkup.join('');
         jquery__WEBPACK_IMPORTED_MODULE_0___default()(`
-        <li style="height: 40px;" class="rating">
+        <li class="rating">
           <div class="row">
             <div class="two-thirds">
-            ${starsMarkup}
-            ${response.post_content}
+              <div class="stars">${starsMarkup}</div>
+              <div class="content">${response.post_content}</div>
             </div>
             <div class="one-third">
               <span class="edit-rating"><i class="fa fa-pencil" aria-hidden="true"></i> Edit</span>
@@ -549,7 +553,7 @@ class Ratings {
             <span class="close">&times;</span>
             <div class="create-rating">
               <h2>Update your rating this program</h2>
-              <label for="program_rating">Rating out of 5 yo</label>
+              <label for="program_rating">Rating out of 5.</label>
               <div>
                 <input class="new-rating-number" type="range" min="1" max="5" name="program_rating" value="${response.rating}"/>
                 <br></p></br>
@@ -559,12 +563,11 @@ class Ratings {
             </div>
           </div>
         </div>
-
         </li>`).prependTo('#rating-list').hide().slideDown();
       },
       error: response => {
         $submitRatingBtn.text('error..');
-        console.log('Unsuccessful: ', response);
+        console.log('Unsuccessful create: ', response);
       }
     });
   }
