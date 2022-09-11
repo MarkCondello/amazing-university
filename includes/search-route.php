@@ -4,6 +4,7 @@ function universityRegisterSearch() {
   register_rest_route('university/v1', 'search', [
     'method' => 'GET', // WP_REST_SERVER::READABLE
     'callback' => 'universitySearchResults',
+    'permission_callback' => '__return_true',
   ]);
 }
 add_action('rest_api_init', 'universityRegisterSearch');

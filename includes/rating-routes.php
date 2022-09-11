@@ -4,16 +4,18 @@ function registerRatingRoutes()
   register_rest_route('university/v1', 'add-rating', [
     'methods' => 'POST',
     'callback' => 'addRating',
+    'permission_callback' => '__return_true',
   ]);
   register_rest_route('university/v1', 'delete-rating', [
     'methods' => 'DELETE',
     'callback' => 'deleteRating',
+    'permission_callback' => '__return_true',
   ]);
   register_rest_route('university/v1', 'update-rating', [
     'methods' => 'POST',
     'callback' => 'updateRating',
+    'permission_callback' => '__return_true',
   ]);
-  // need edit route too
 }
 add_action('rest_api_init', 'registerRatingRoutes');
 

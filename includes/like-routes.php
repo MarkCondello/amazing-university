@@ -3,10 +3,12 @@ function registerLikeRoutes() {
   register_rest_route('university/v1', 'add-like', [
     'methods' => 'POST',
     'callback' => 'addLike',
+    'permission_callback' => '__return_true',
   ]);
   register_rest_route('university/v1', 'delete-like', [
     'methods' => 'DELETE',
     'callback' => 'deleteLike',
+    'permission_callback' => '__return_true',
   ]);
 }
 add_action('rest_api_init', 'registerLikeRoutes');
