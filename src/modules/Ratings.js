@@ -27,8 +27,9 @@ export default class Ratings {
     const ratingId = $updateRatingBtn.attr('data-rating-id'),
     $modal = $updateRatingBtn.closest('.modal'),
     rating = $modal.find('.new-rating-number').val(),
-    content = $modal.find('.new-rating-body').val()
-    
+    content = $modal.find('.new-rating-body').val(),
+    $ratingAnonymous = $modal.find('.new-rating-is-anonymous')
+
     $.ajax({
       beforeSend: (xhr) => {
         xhr.setRequestHeader('X-WP-Nonce', uniData.nonce) //Number used once
@@ -38,13 +39,15 @@ export default class Ratings {
         ratingId,
         rating,
         content,
+        is_anonymous: $ratingAnonymous.is(':checked'), // should this be changed to 'on'??
       },
       type: 'POST',
       success: (response) => {
         console.log('reached handleUpdate success', {response})
         const $ratingRow = $editRatingBtn.closest('.rating'),
         $stars = $ratingRow.find('.stars'),
-        $content = $ratingRow.find('.content')
+        $content = $ratingRow.find('.content'),
+        $author = $ratingRow.find('.author')
         let starsMarkup = []
         for(let i = 0; i < parseInt(response.rating); i++){
           starsMarkup.push(`<span class='fa fa-star'></span>`)
@@ -52,7 +55,9 @@ export default class Ratings {
         starsMarkup = starsMarkup.join('')
         $content.text(response.post_content)
         $stars.html(starsMarkup)
+        $author.html(`Written by: ${response.authorsName}`)
         setTimeout(function(){
+          // console.log({$author})
           $modal.fadeOut()
           $('body').css({'overflow': 'visible', 'overflow-y': 'visible'})
         }, 250)
@@ -88,9 +93,10 @@ export default class Ratings {
     const $submitRatingBtn = $(ev.target),
     $ratingForm = $submitRatingBtn.closest('.create-rating'),
     $ratingNumber = $ratingForm.find('.new-rating-number'),
-    $ratingContent = $ratingForm.find('.new-rating-body')
-
+    $ratingContent = $ratingForm.find('.new-rating-body'),
+    $ratingAnonymous = $ratingForm.find('.new-rating-is-anonymous')
     $submitRatingBtn.text("sending...") // ToDo: test this
+    console.log({$ratingAnonymous, anonVal: $ratingAnonymous.is(':checked')})
     $.ajax({
       beforeSend: (xhr) => {
         xhr.setRequestHeader('X-WP-Nonce', uniData.nonce) //Number used once
@@ -100,6 +106,7 @@ export default class Ratings {
         programId: $submitRatingBtn.attr('data-program-id'),
         rating: $ratingNumber.val(),
         content: $ratingContent.val(),
+        is_anonymous: $ratingAnonymous.is(':checked'), // should this be changed to 'on'??
       },
       type: 'POST',
       success: (response) => {
@@ -119,6 +126,7 @@ export default class Ratings {
             <div class="two-thirds">
               <div class="stars">${ starsMarkup }</div>
               <div class="content">${ response.post_content }</div>
+              <cite><small class="author">Written by: ${ response.authorsName }</small></cite>
             </div>
             <div class="one-third">
               <span class="edit-rating"><i class="fa fa-pencil" aria-hidden="true"></i> Edit</span>
@@ -136,6 +144,16 @@ export default class Ratings {
                 <br></p></br>
               </div>
               <textarea class="new-rating-body" placeholder="Your rating goes here...">${ response.post_content }</textarea>
+              <span>Remain Anonymous?</span>
+              <div>
+              <label>Yes</label>
+              <input
+                class="new-rating-is-anonymous"
+                type="checkbox"
+                name="is_anonymous"
+                checked="${ response.isAnonymouse }"
+              >
+              <br></p></br>
               <span class="update-rating" data-rating-id="${ response.ID }">Update rating</span>
             </div>
           </div>

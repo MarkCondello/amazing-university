@@ -25,30 +25,37 @@ function updateRating($data)
     $ratingId = sanitize_text_field($data['ratingId']);
     $ratingExistsQuery = new WP_Query([
       'p' => $ratingId,
-      'author_id' => [get_current_user_id()],
+      'author' => get_current_user_id(),
       'post_type' => 'rating',
       'post_status' => 'publish',
     ]);
     if ($ratingExistsQuery->found_posts && get_post_type($ratingId) == 'rating') :
       $rating = sanitize_text_field($data['rating']);
       $content = sanitize_text_field($data['content']);
+      $is_anonymous = sanitize_text_field($data['is_anonymous']); // does this val need to be set to on??
+
       $updatedRatingId = wp_update_post([
         'ID' => $ratingId,
         'post_title' => 'Rating ' . $ratingId . ' updated.',
         'post_content' => $content,
         'meta_input' => [
-          'rating' => $rating
+          'rating' => $rating,
+          'is_anonymous' => $is_anonymous,
         ],
       ]);
       $updatedRatingQuery = new WP_Query([
         'p' => $updatedRatingId,
-        'author_id' => [get_current_user_id()],
+        'author' => get_current_user_id(),
         'post_type' => 'rating',
       ]);
       //send back the newly updated Rating
+      $anonymous_field_setting = get_field('is_anonymous', $updatedRatingId);
       $updatedRatingCustomFields = [
         'rating' => get_field('rating', $updatedRatingId),
         'programId' => get_field('program_id', $updatedRatingId),
+        'isAnonymous' => $anonymous_field_setting,
+        'author-nice-name' => get_the_author_meta('display_name', get_current_user_id()),
+        'authorsName' => $anonymous_field_setting == 'true' ? 'Anonymous' : get_the_author_meta('display_name', get_current_user_id())
       ];
       return array_merge((array) $updatedRatingQuery->posts[0], (array) $updatedRatingCustomFields);
     else:
@@ -86,6 +93,8 @@ function addRating($data)
     $programId = sanitize_text_field($data['programId']);
     $rating = sanitize_text_field($data['rating']);
     $content = sanitize_text_field($data['content']);
+    $is_anonymous = sanitize_text_field($data['is_anonymous']); // does this val need to be set to on??
+
     $ratingExistsQuery = new WP_Query([
       'author' => get_current_user_id(),
       'post_type' => 'rating',
@@ -111,6 +120,7 @@ function addRating($data)
         'meta_input' => [
           'program_id' => $programId,
           'rating' => $rating,
+          'is_anonymous' => $is_anonymous,
         ],
       ]);
       $newRatingQuery = new WP_Query([
@@ -119,9 +129,12 @@ function addRating($data)
         'post_type' => 'rating',
       ]);
       //send back the newly created Rating
+      $anonymous_field_setting = get_field('is_anonymous', $newRatingId);
       $newRatingCustomFields = [
         'rating' => get_field('rating', $newRatingId),
         'programId' => get_field('program_id', $newRatingId),
+        'isAnonymous' => $anonymous_field_setting,
+        'authorsName' => $anonymous_field_setting == 'true' ? 'Anonymous' : the_author_meta('user_nicename', get_current_user_id())
       ];
       return array_merge((array) $newRatingQuery->posts[0], (array) $newRatingCustomFields);
     } else {

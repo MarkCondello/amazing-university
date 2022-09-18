@@ -137,10 +137,10 @@ if ($ratingsQuery->have_posts()):
           } ?>
           </div>
           <div class="content">
-            <?= get_the_content(); ?>
-            <!-- Show who created the rating if checkbox to show is checked -->
-            <br><cite><small>Written by: <?= the_author_meta('user_nicename') ?></small></cite>
+            <?= get_the_content() ?>
           </div>
+          <?php $authors_name = get_field('is_anonymous') == 'true' ? 'Anonymous' : the_author_meta('user_nicename') ?>
+          <cite><small class="author">Written by: <?= $authors_name ?></small></cite>
         </div>
         <div class="one-third">
     <?php if ($user_created_this_rating): ?>
@@ -150,7 +150,6 @@ if ($ratingsQuery->have_posts()):
         </div>
       </div>
 <?php if ($user_created_this_rating): ?>
-      <!-- Create an edit rating modal if the user owns the rating -->
       <div class="modal">
         <div class="modal-content">
           <span class="close">&times;</span>
@@ -162,6 +161,17 @@ if ($ratingsQuery->have_posts()):
               <br></p></br>
             </div>
             <textarea class="new-rating-body" placeholder="Your rating goes here..."><?= get_the_content(); ?></textarea>
+            <!-- Include option for user to remain Anonymous -->
+            <span>Remain Anonymous?</span>
+            <div>
+              <label>Yes</label>
+              <input
+                class="new-rating-is-anonymous"
+                type="checkbox"
+                name="is_anonymous"
+        <?php   if (get_field('is_anonymous')): echo 'checked="checked"'; endif ?>
+              >
+            <br></p></br>
             <span class="update-rating" data-rating-id="<?= the_ID(); ?>">Update rating</span>
           </div>
         </div>
@@ -176,18 +186,9 @@ else: ?>
 <?php
 endif; ?>
   </ul>
-<!-- Rating feature
-Add rating form here that only subscribers can see and create a rating
-  Only 1 rating can be created for a program by any one subscriber
-  Only the owner of the rating can edit or delete the rating
-  Display all the ratings ordered by date -->
 <?php
 if (is_user_logged_in() && userIsSubscriber()):
-  $mergedArrays = array_merge(['author' => get_current_user_id()], $ratingQueryParams);
-  // echo '<pre>';
-  // var_dump($mergedArrays);
-  // echo '</pre>';
-  $currentUsersRatingsQuery = new WP_Query($mergedArrays);
+  $currentUsersRatingsQuery = new WP_Query(array_merge(['author' => get_current_user_id()], $ratingQueryParams));
   // echo '$currentUsersRatingsQuery->found_posts = ' . $currentUsersRatingsQuery->found_posts;
   // echo '<br>Username: ' . wp_get_current_user()->user_login;
   if ($currentUsersRatingsQuery->found_posts == 0):
@@ -201,6 +202,17 @@ if (is_user_logged_in() && userIsSubscriber()):
       <br></p></br>
       </div>
       <textarea class="new-rating-body" placeholder="Your rating goes here..."></textarea>
+      <!-- Include option for user to remain Anonymous -->
+      <span>Remain Anonymous?</span>
+      <div>
+        <label>Yes</label>
+        <input
+          class="new-rating-is-anonymous"
+          type="checkbox"
+          name="is_anonymous"
+        >
+        <br></p></br>
+      </div>
       <span class="submit-rating" data-program-id="<?= the_ID()?>">Create rating</span>
       <!-- If user tries to add another rating show an error message -->
       <!-- <span class="rating-limit-message">You have reached your rating limit. Delete a previous rating to create a new one.</span> -->
@@ -208,11 +220,11 @@ if (is_user_logged_in() && userIsSubscriber()):
   </div>
 <?php
   else:
+    // Used for debugging
     // echo '<pre>';
     // var_dump($currentUsersRatingsQuery->posts[0]);
     // echo '</pre>';
   endif;
-
 endif;?>
 </div>
 <?php
