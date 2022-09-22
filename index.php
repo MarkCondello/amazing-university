@@ -1,25 +1,17 @@
-<!-- blog listing template for posts -->
-<?php get_header();
-pageBanner([
-  'title' => 'Welcome to our blog!',
-  'subtitle' => 'Keep up with our latest news...',
-]); ?>
-<div class="container container--narrow page-section">
-<?php 
-while(have_posts()):
-  the_post();?>
-  <div class="post-item">
-    <h2 class="headline headline--medium headline--post-title"><a href="<?= the_permalink() ?>"><?= the_title() ?></a></h2>
-    <div class="metabox">
-      <p>Posted by:<?= the_author_posts_link() ?> on <?= the_time('g M Y') ?> in <?= get_the_category_list(', ') ?></p>
-    </div>
-    <div class="generic-content">
-      <?php the_excerpt(); ?>
-      <p><a class="btn btn--blue" href="<?= the_permalink() ?>">continue reading</a></p>
-    </div>
-  </div>
-<?php 
-endwhile;
-echo paginate_links(); ?>
-</div>
-<?php get_footer();?>
+<?php
+/**
+ * Front to the WordPress application. This file doesn't do anything, but loads
+ * wp-blog-header.php which does and tells WordPress to load the theme.
+ *
+ * @package WordPress
+ */
+
+/**
+ * Tells WordPress to load the WordPress theme and output it.
+ *
+ * @var bool
+ */
+define( 'WP_USE_THEMES', true );
+
+/** Loads the WordPress Environment and Template */
+require __DIR__ . '/wp-blog-header.php';
