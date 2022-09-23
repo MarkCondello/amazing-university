@@ -29,13 +29,13 @@ class AreYouPayingAttention{
   public function theHTML($attrs)
   {
     if (!is_admin()):
-      // Load the assets when the block is rendered
+      // Load the assets when the block is rendered on the front end
       wp_enqueue_script('attentionfrontend', plugin_dir_url(__FILE__) . '/build/frontend.js', ['wp-element']); // wp-element is WP's version of React
       wp_enqueue_style('attentionfrontend', plugin_dir_url(__FILE__) . '/build/frontend.css');
     endif;
     ob_start(); // anything that comes after this function is added to the buffer?>
     <div class="paying-attention-block">
-      <pre style="display:none;"><?= wp_json_encode($attrs) ?></pre>
+      <pre style="display:none;"><?= wp_json_encode($attrs) ?></pre> <!-- Load props data into pre tag -->
     </div>
   <?php
     return ob_get_clean();

@@ -1,11 +1,11 @@
 // Wordpress adds wp to the global scope. We can access blocks.FUNCTION from that globally accessible object
-import './index.scss'
-import { TextControl, Flex, FlexBlock, FlexItem, Button, Icon } from '@wordpress/components'
-
+import './index.scss';
+import { TextControl, Flex, FlexBlock, FlexItem, Button, Icon, PanelBody, PanelRow, ColorPicker } from '@wordpress/components';
+import { InspectorControls } from '@wordpress/block-editor';
 (function() {
   let locked = false
   wp.data.subscribe(function(){ // This fires every time the editor has changed
-    console.log('Editor Change', wp.data.select("core/block-editor").getBlocks())
+    // console.log('Editor Change', wp.data.select("core/block-editor").getBlocks())
     const matchingBlocks = wp.data.select("core/block-editor").getBlocks().filter(block => {
       return block.name == "mrc-plugin/are-you-paying-attention" && block.attributes.correctAnswer == undefined
     })
@@ -28,13 +28,14 @@ wp.blocks.registerBlockType('mrc-plugin/are-you-paying-attention', {
     question: {type: "string", },
     answers: {type: "array", default: [""], },
     correctAnswer: {type: "string", },
+    backgroundColor: {type: "string", default: "#ebebeb", }
   },
   edit(props){
     const handleQuestionChange = (val) => {
       props.setAttributes({question: val})
     }
     const deleteAnswer = (indexToDelete) => {
-      if(props.attributes.answers[indexToDelete] == props.attributes.correctAnswer) {
+      if (props.attributes.answers[indexToDelete] == props.attributes.correctAnswer) {
         props.setAttributes({correctAnswer: undefined})
       }
       const newAnswers = props.attributes.answers.filter((el, index) => index !== indexToDelete)
@@ -44,8 +45,18 @@ wp.blocks.registerBlockType('mrc-plugin/are-you-paying-attention', {
       props.setAttributes({correctAnswer: answer})
     })
     return (
-      <div className="paying-attention-edit-block">
-        <TextControl label="Question:" style={{fontSize: '20px'}} value={props.attributes.question} onChange={handleQuestionChange} />
+      <div className="paying-attention-edit-block" style={{backgroundColor: props.attributes.backgroundColor}}>
+        <InspectorControls>
+          <PanelBody title="Background Color" initialOpen={true}>
+            <PanelRow>
+              <ColorPicker color={props.attributes.backgroundColor} onChangeComplete={(color)=>{
+                props.setAttributes({backgroundColor: color.hex})}}
+              />
+            </PanelRow>
+          </PanelBody>
+        </InspectorControls>
+        <TextControl label="Question:" style={{fontSize: '20px'}} value={props.attributes.question}
+          onChange={handleQuestionChange} />
         <p style={{fontSize: '13px', margin: "20px 8px 0 0"}}>Answers</p>
         {props.attributes.answers.map((answer, index) => {
           return <Flex>
