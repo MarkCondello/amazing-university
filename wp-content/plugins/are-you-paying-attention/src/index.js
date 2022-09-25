@@ -1,7 +1,7 @@
 // Wordpress adds wp to the global scope. We can access blocks.FUNCTION from that globally accessible object
 import './index.scss';
 import { TextControl, Flex, FlexBlock, FlexItem, Button, Icon, PanelBody, PanelRow, ColorPicker } from '@wordpress/components';
-import { InspectorControls } from '@wordpress/block-editor';
+import { InspectorControls, BlockControls, AlignmentToolbar } from '@wordpress/block-editor';
 (function() {
   let locked = false
   wp.data.subscribe(function(){ // This fires every time the editor has changed
@@ -28,8 +28,19 @@ wp.blocks.registerBlockType('mrc-plugin/are-you-paying-attention', {
     question: {type: "string", },
     answers: {type: "array", default: [""], },
     correctAnswer: {type: "string", },
-    backgroundColor: {type: "string", default: "#ebebeb", }
+    backgroundColor: {type: "string", default: "#ebebeb", },
+    titleAlignment: {type: "string", default: "left", },
   },
+  example: { // preview screenshot for the block with dummy data below
+    attributes: {
+      question: "How many bones has the human body",
+      answers: ['100', '300', '400', '206'],
+      correctAnswer: '206',
+      backgroundColor: "#ebebeb",
+      titleAlignment: "left",
+    }
+  },
+  description: "Give your audience a chance to test what they have learnt.", // this detail displays in the sidepanel when clicking on the block to edit it
   edit(props){
     const handleQuestionChange = (val) => {
       props.setAttributes({question: val})
@@ -46,6 +57,11 @@ wp.blocks.registerBlockType('mrc-plugin/are-you-paying-attention', {
     })
     return (
       <div className="paying-attention-edit-block" style={{backgroundColor: props.attributes.backgroundColor}}>
+        <BlockControls>
+          <AlignmentToolbar value={props.attributes.titleAlignment} onChange={(alignment) => {
+            props.setAttributes({titleAlignment: alignment})
+          }}></AlignmentToolbar>
+        </BlockControls>
         <InspectorControls>
           <PanelBody title="Background Color" initialOpen={true}>
             <PanelRow>
@@ -55,8 +71,12 @@ wp.blocks.registerBlockType('mrc-plugin/are-you-paying-attention', {
             </PanelRow>
           </PanelBody>
         </InspectorControls>
-        <TextControl label="Question:" style={{fontSize: '20px'}} value={props.attributes.question}
-          onChange={handleQuestionChange} />
+        <TextControl
+          label="Question:"
+          style={{ fontSize: '20px', textAlign: props.attributes.titleAlignment }}
+          value={props.attributes.question}
+          onChange={handleQuestionChange}
+        />
         <p style={{fontSize: '13px', margin: "20px 8px 0 0"}}>Answers</p>
         {props.attributes.answers.map((answer, index) => {
           return <Flex>
@@ -74,7 +94,9 @@ wp.blocks.registerBlockType('mrc-plugin/are-you-paying-attention', {
             <FlexItem>
               <Button>
                 <Icon
-                  icon={answer === props.attributes.correctAnswer ? "star-filled" : "star-empty"}className="star" onClick={()=>handleCorrectAnswerClick(answer)}
+                  icon={answer === props.attributes.correctAnswer ? "star-filled" : "star-empty"}
+                  className="star"
+                  onClick={()=>handleCorrectAnswerClick(answer)}
                 />
               </Button>
             </FlexItem>

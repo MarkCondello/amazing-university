@@ -11,7 +11,7 @@ payingAttentionBlocks.forEach(block => {
 })
 
 function Quiz(props) {
-  console.log('Props', props)
+  // console.log('Props', props)
   const [isCorrect, setIsCorrect] = useState(undefined)
   const [isCorrectDelayed, setIsCorrectDelayed] = useState(undefined)
   useEffect(()=>{
@@ -37,7 +37,7 @@ function Quiz(props) {
   }
   return (
     <div className="paying-attention-frontend" style={{backgroundColor: props.backgroundColor}}>
-      <p>{props.question}</p>
+      <p style={{textAlign: props.titleAlignment}}>{props.question}</p>
       <ul>
       { props.answers.map(answer =>
         <li className={(isCorrectDelayed === true && answer == props.correctAnswer && "no-click") + 
