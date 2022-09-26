@@ -1,7 +1,7 @@
 // Wordpress adds wp to the global scope. We can access blocks.FUNCTION from that globally accessible object
 import './index.scss';
 import { TextControl, Flex, FlexBlock, FlexItem, Button, Icon, PanelBody, PanelRow, ColorPicker } from '@wordpress/components';
-import { InspectorControls, BlockControls, AlignmentToolbar } from '@wordpress/block-editor';
+import { InspectorControls, BlockControls, AlignmentToolbar, useBlockProps } from '@wordpress/block-editor';
 (function() {
   let locked = false
   wp.data.subscribe(function(){ // This fires every time the editor has changed
@@ -13,17 +13,14 @@ import { InspectorControls, BlockControls, AlignmentToolbar } from '@wordpress/b
       locked = true
       wp.data.dispatch("core/editor").lockPostSaving('noanswer')
     }
-    if (!matchingBlocks.length && locked ){
+    if (!matchingBlocks.length && locked){
       locked = false
       wp.data.dispatch("core/editor").unlockPostSaving('noanswer')
     }
   })
 })()
 
-wp.blocks.registerBlockType('mrc-plugin/are-you-paying-attention', {
-  title: 'Are you paying attention?',
-  icon: 'smiley',
-  category: 'common',
+wp.blocks.registerBlockType('mrc-plugin/are-you-paying-attention', { 
   attributes: {
     question: {type: "string", },
     answers: {type: "array", default: [""], },
@@ -40,8 +37,11 @@ wp.blocks.registerBlockType('mrc-plugin/are-you-paying-attention', {
       titleAlignment: "left",
     }
   },
-  description: "Give your audience a chance to test what they have learnt.", // this detail displays in the sidepanel when clicking on the block to edit it
   edit(props){
+    const blockProps = useBlockProps({
+      className:"paying-attention-edit-block",
+      style:{backgroundColor: props.attributes.backgroundColor}
+    }) // this provides the UI interactivity for apiV 2
     const handleQuestionChange = (val) => {
       props.setAttributes({question: val})
     }
@@ -56,7 +56,7 @@ wp.blocks.registerBlockType('mrc-plugin/are-you-paying-attention', {
       props.setAttributes({correctAnswer: answer})
     })
     return (
-      <div className="paying-attention-edit-block" style={{backgroundColor: props.attributes.backgroundColor}}>
+      <div {...blockProps}>
         <BlockControls>
           <AlignmentToolbar value={props.attributes.titleAlignment} onChange={(alignment) => {
             props.setAttributes({titleAlignment: alignment})

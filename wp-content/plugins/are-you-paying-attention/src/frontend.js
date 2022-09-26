@@ -1,4 +1,4 @@
-import React, { useState, useEffect }  from 'react'
+import { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import './frontend.scss'
 
@@ -28,10 +28,10 @@ function Quiz(props) {
   }, [isCorrect]) // checks for changes to isCorrect state item
   const handleAnswerClick = (answer) => {
     if (answer === props.correctAnswer){
-      console.log("correct")
+      // console.log("correct")
       setIsCorrect(true)
     } else {
-      console.log('wrong answer')
+      // console.log('wrong answer')
       setIsCorrect(false)
     }
   }

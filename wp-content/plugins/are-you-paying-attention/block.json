@@ -1,0 +1,13 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "mrc-plugin/are-you-paying-attention",
+  "title": "Are you paying attention?",
+  "editorScript": "file:./build/index.js",
+  "script": "file:./build/index.js",
+  "editorStyle": "file:./build/index.css",
+  "style": [ "file:./build/frontend.css", "example-shared-style" ],
+  "icon": "smiley",
+  "category": "common",
+  "description": "Give your audience a chance to test what they have learnt..."
+}
