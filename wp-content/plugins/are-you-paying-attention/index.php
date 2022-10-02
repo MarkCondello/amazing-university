@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Are you paying attention
+ * Plugin Name: Are you paying attention Block.
  * Description: A plugin which generates a Guttenburg block.
  * Version: 1.0.0
  * Author: MRC

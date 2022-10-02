@@ -8,6 +8,10 @@ wp-content/plugins/*
 wp-content/plugins/are-you-paying-attention/node_modules
 wp-content/plugins/are-you-paying-attention/build
 
+!wp-content/plugins/featured-professor
+wp-content/plugins/featured-professor/node_modules
+wp-content/plugins/featured-professor/build
+
 wp-content/upgrade
 wp-content/uploads
 wp-content/themes/*
