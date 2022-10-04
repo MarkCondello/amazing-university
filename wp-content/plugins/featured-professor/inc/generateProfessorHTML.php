@@ -4,10 +4,8 @@ function generateProfessorHtml($ProfessorId) {
     'post_type' => 'professor',
     'p' => $ProfessorId,
   ]);
-  // var_dump($professorPost->posts[0]);
   while($professorPost->have_posts()):
     $professorPost->the_post();
-
     ob_start(); ?>
     <div class="professor-callout">
       <div class="professor-callout__photo"
@@ -20,7 +18,7 @@ function generateProfessorHtml($ProfessorId) {
         <?php
           $relatedPrograms = get_field('related_program');
           if($relatedPrograms): ?>
-          <p><?= the_title() ?> teached:
+          <p><?= the_title() ?> taught:
            <?php foreach($relatedPrograms as $key => $program):
             echo get_the_title($program);
             if($key != array_key_last($relatedPrograms) && count($relatedPrograms)){ echo ', ';}?>
