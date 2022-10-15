@@ -13,11 +13,32 @@ if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 require_once plugin_dir_path(__FILE__) . 'inc/generateProfessorHTML.php';
 
 class FeaturedProfessor {
-  function __construct() {
+  function __construct()
+  {
     add_action('init', [$this, 'onInit']);
     add_action('rest_api_init', [$this, 'professorHTML']);
+    add_filter('the_content', [$this, 'addRelatedPosts']);
   }
 
+  
+  function onInit()
+  {
+    register_meta('post', 'featuredprofessor', [
+      'show_in_rest' => true,
+      'type' => 'number',
+      'single' => false, // do not save all the professor Id's in one row, save them to their own row instead
+    ]);
+    
+    wp_register_script('featuredProfessorScript', plugin_dir_url(__FILE__) . 'build/index.js', array('wp-blocks', 'wp-i18n', 'wp-editor'));
+    wp_register_style('featuredProfessorStyle', plugin_dir_url(__FILE__) . 'build/index.css');
+    
+    register_block_type('ourplugin/featured-professor', array(
+      'render_callback' => [$this, 'renderCallback'],
+      'editor_script' => 'featuredProfessorScript',
+      'editor_style' => 'featuredProfessorStyle'
+    ));
+  }
+  
   function professorHTML()
   {
     register_rest_route('featuredProfessor/v1', 'getHTML', [
@@ -25,23 +46,6 @@ class FeaturedProfessor {
       'callback' => [$this, 'renderCallback'],
     ]);
   }
-  // function getProfessorHTML($data)
-  // {
-  //   return generateProfessorHtml($data['professorId']);
-  // }
-
-  function onInit()
-  {
-    wp_register_script('featuredProfessorScript', plugin_dir_url(__FILE__) . 'build/index.js', array('wp-blocks', 'wp-i18n', 'wp-editor'));
-    wp_register_style('featuredProfessorStyle', plugin_dir_url(__FILE__) . 'build/index.css');
-
-    register_block_type('ourplugin/featured-professor', array(
-      'render_callback' => [$this, 'renderCallback'],
-      'editor_script' => 'featuredProfessorScript',
-      'editor_style' => 'featuredProfessorStyle'
-    ));
-  }
-
   function renderCallback($attributes)
   {
     if ($attributes['professorId']){
@@ -51,7 +55,13 @@ class FeaturedProfessor {
       return null;
     }
   }
-
+  function addRelatedPosts($content)
+  {
+    if (is_singular('professor') && in_the_loop() && is_main_query()) {
+      return $content . generateRelatedPost(get_the_ID());
+    }
+    return $content;
+  }
 }
 
 $featuredProfessor = new FeaturedProfessor();

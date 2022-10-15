@@ -1,7 +1,6 @@
 import "./index.scss"
 
 import {useSelect} from "@wordpress/data"
-// 
 import {useState, useEffect} from "react"
 import apiFetch from "@wordpress/api-fetch"
 
@@ -21,16 +20,41 @@ wp.blocks.registerBlockType("ourplugin/featured-professor", {
 
 function EditComponent(props) {
   const [thePreview, setThePreview] = useState("")
-  useEffect(()=>{
-    async function go(){
-      const response = await apiFetch({
-        path: `/featuredProfessor/v1/getHTML?professorId=${props.attributes.professorId}`,
-        method: "GET"
+
+  function updateProfessorMeta(){
+    const proffesorIdsForMeta = wp.data.select("core/block-editor")
+      .getBlocks()
+      .filter(block => {
+        return block.name == "ourplugin/featured-professor"
       })
-      setThePreview(response)
+      .map(block => block.attributes.professorId)
+      .filter((professorId, index, array) => { // check to see if the professorId is in the array
+        return array.indexOf(professorId) == index
+      })
+    wp.data.dispatch("core/editor")
+      .editPost({meta: {featuredprofessor: proffesorIdsForMeta}}) // this stores post data to the post_meta table
+      //An inclusive list of the wp.data methods we can leverage to modify post/pages is here: https://salferrarello.com/gutenberg-js/
+  }
+
+  useEffect(() => {
+    if (props.attributes.professorId) {
+      updateProfessorMeta()
+      async function go(){
+        const response = await apiFetch({
+          path: `/featuredProfessor/v1/getHTML?professorId=${props.attributes.professorId}`,
+          method: "GET"
+        })
+        setThePreview(response)
+      }
+      go()
     }
-    go()
   }, [props.attributes.professorId])
+  
+  useEffect(() => { // clean up function when unmounted to update / remove rows from the meta table
+    return () => {
+      updateProfessorMeta()
+    }
+  },[])
 
   const allProfessors = useSelect(select => {
     return select('core').getEntityRecords('postType', 'professor', {per_page: -1, }) // this retrieves the data for the customPost asynchonously

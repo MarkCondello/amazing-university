@@ -35,3 +35,30 @@ function generateProfessorHtml($ProfessorId) {
   wp_reset_postdata();
   return ob_get_clean();
 }
+
+function generateRelatedPost($ProfessorId) {
+  $professorsRelatedPost = new WP_Query([
+    'posts_per_page' => -1,
+    'post_type' => 'any',
+    'meta_query' => [
+      [
+        'key' => 'featuredprofessor',
+        'compare' => '=',
+        'value' => $ProfessorId
+      ]
+    ]
+  ]);
+  ob_start();
+  if ($professorsRelatedPost->found_posts): ?>
+    <p><?= the_title(); ?> is mentioned in the following links:</p>
+    <ul>
+<?php while($professorsRelatedPost->have_posts()):
+        $professorsRelatedPost->the_post(); ?>
+      <li><a href="<?= the_permalink()?>"><?= the_title() ?></a></li>
+<?php endwhile; ?>
+    </ul>
+<?php
+  endif;
+  wp_reset_postdata();
+  return ob_get_clean();
+}
